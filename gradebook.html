@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Журнал оценок — ModulUS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div id="app-header"></div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-2 col-md-3 p-0" id="app-sidebar"></div>
+    <div class="col-lg-10 col-md-9 p-4">
+
+      <!-- шапка журнала -->
+      <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
+        <div class="d-flex align-items-center">
+          <a href="groups.html" class="btn btn-light me-2"><i class="bi bi-arrow-left"></i></a>
+          <div>
+            <h3 class="fw-bold mb-0" id="gb-title">Журнал</h3>
+            <span class="text-muted small" id="gb-sub"></span>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary" onclick="openSumSettings()"><i class="bi bi-calculator"></i> Суммирование</button>
+          <button class="btn btn-outline-primary" onclick="openExport()"><i class="bi bi-download"></i> Экспорт</button>
+          <button class="btn btn-outline-primary" onclick="openImport()"><i class="bi bi-upload"></i> Импорт</button>
+          <button class="btn btn-primary" onclick="openAddCol()"><i class="bi bi-plus-lg"></i> Столбец</button>
+        </div>
+      </div>
+
+      <!-- легенда -->
+      <div class="d-flex flex-wrap gap-3 mb-3 small text-muted">
+        <span><span class="badge badge-role-student">&nbsp;</span> Модуль</span>
+        <span><span class="badge bg-warning">&nbsp;</span> Итог</span>
+        <span><span style="background:#fffbeb;border-bottom:2px solid #d97706;display:inline-block;width:14px;height:10px;"></span> Есть комментарий</span>
+        <span>Клик по ячейке — чтобы поставить балл, иконка <i class="bi bi-chat-dots"></i> — чтобы комментировать.</span>
+      </div>
+
+      <!-- таблица -->
+      <div class="card">
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height:70vh;">
+            <table class="table table-bordered grade-table mb-0 align-middle" id="grade-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== Модалка: добавить столбец ===== -->
+<div class="modal fade" id="addColModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Новый столбец</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Название</label>
+          <input type="text" class="form-control" id="col-title" placeholder="ЛР 5 / Контрольная 2 ..."></div>
+
+        <label class="form-label">Размещение (перед каким модулем)</label>
+        <div class="row g-2 mb-3">
+          <div class="col-4"><label class="role-pick d-block text-center">
+            <input type="radio" name="colpos" value="before1" class="d-none" checked>
+            <div class="role-pick-body"><div class="small">До 1</div><div class="fw-bold">модуля</div></div></label></div>
+          <div class="col-4"><label class="role-pick d-block text-center">
+            <input type="radio" name="colpos" value="before2" class="d-none">
+            <div class="role-pick-body"><div class="small">До 2</div><div class="fw-bold">модуля</div></div></label></div>
+          <div class="col-4"><label class="role-pick d-block text-center">
+            <input type="radio" name="colpos" value="before3" class="d-none">
+            <div class="role-pick-body"><div class="small">До 3</div><div class="fw-bold">модуля</div></div></label></div>
+        </div>
+
+        <label class="form-label">Тип значения</label>
+        <select class="form-select mb-3" id="col-type">
+          <option value="number">Числовой (баллы)</option>
+          <option value="text">Текстовый («зачёт», «н/а»...)</option>
+        </select>
+
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="col-sum" checked>
+          <label class="form-check-label" for="col-sum">Суммировать баллы этого столбца в соответствующий модуль</label>
+        </div>
+        <div class="form-text">Можно изменить позже в настройках суммирования.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+        <button class="btn btn-primary" onclick="confirmAddCol()">Добавить столбец</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Модалка: настройки суммирования ===== -->
+<div class="modal fade" id="sumModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Настройка суммирования модулей</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p class="text-muted">Отметьте, какие промежуточные столбцы нужно складывать в каждый модуль и в итог.</p>
+
+        <h6 class="fw-bold mt-3">До 1 модуля</h6>
+        <div id="sum-before1" class="mb-3"></div>
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="sum1-enable" checked>
+          <label class="form-check-label" for="sum1-enable">Суммировать отмеченные столбцы в <b>1 модуль</b></label>
+        </div>
+
+        <h6 class="fw-bold">До 2 модуля</h6>
+        <div id="sum-before2" class="mb-3"></div>
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="sum2-enable" checked>
+          <label class="form-check-label" for="sum2-enable">Суммировать отмеченные столбцы в <b>2 модуль</b></label>
+        </div>
+
+        <h6 class="fw-bold">До 3 модуля</h6>
+        <div id="sum-before3" class="mb-3"></div>
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="sum3-enable" checked>
+          <label class="form-check-label" for="sum3-enable">Суммировать отмеченные столбцы в <b>3 модуль</b></label>
+        </div>
+
+        <hr>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="sum-total-enable">
+          <label class="form-check-label" for="sum-total-enable">Считать <b>Итог</b> как сумму 1+2+3 модулей</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+        <button class="btn btn-primary" onclick="confirmSum()">Применить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Модалка: экспорт Excel ===== -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Экспорт журнала в Excel</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <label class="form-label">Что экспортировать</label>
+        <select class="form-select mb-3">
+          <option>Весь журнал (все столбцы и студенты)</option>
+          <option>Только модули и итог</option>
+          <option>Только выбранный столбец</option>
+        </select>
+        <label class="form-label">Формат</label>
+        <div class="d-flex gap-3">
+          <div class="form-check"><input class="form-check-input" type="radio" name="expfmt" id="f1" checked><label for="f1" class="form-check-label">.xlsx (Excel)</label></div>
+          <div class="form-check"><input class="form-check-input" type="radio" name="expfmt" id="f2"><label for="f2" class="form-check-label">.csv</label></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+        <button class="btn btn-primary" onclick="demoAction('экспорт Excel');bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();"><i class="bi bi-download"></i> Экспортировать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Модалка: импорт Excel ===== -->
+<div class="modal fade" id="importModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Импорт баллов из Excel</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Файл Excel с баллами</label>
+          <input type="file" class="form-control" accept=".xlsx,.xls"></div>
+        <div class="alert alert-warning small mb-0">
+          <b>Важно:</b> структура столбцов файла должна совпадать с журналом (порядок модулей и промежуточных столбцов).
+          Первая строка — заголовки, первая колонка — ФИО студента.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+        <button class="btn btn-primary" onclick="demoAction('импорт баллов');bootstrap.Modal.getInstance(document.getElementById('importModal')).hide();">Импортировать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Модалка: комментарий к ячейке ===== -->
+<div class="modal fade" id="commentModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Комментарий</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="text-muted small mb-2" id="comment-context"></div>
+        <div id="comment-thread" class="mb-3"></div>
+        <label class="form-label">Ваш комментарий</label>
+        <textarea class="form-control" rows="3" id="comment-text" placeholder="Напишите комментарий студенту..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" data-bs-dismiss="modal">Закрыть</button>
+        <button class="btn btn-primary" onclick="sendComment()">Отправить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+CURRENT_USER.role = 'teacher';
+mountHeader();
+document.getElementById('app-sidebar').innerHTML = renderTeacherSidebar('groups');
+
+const gid = Number(new URLSearchParams(location.search).get('group') || 1);
+const group = getGroup(gid);
+const subj = getSubject(group.subjectId);
+document.getElementById('gb-title').textContent = group.name;
+document.getElementById('gb-sub').textContent = subj.name + ' · ' + group.level + ' · ' + group.students + ' студ.';
+
+let currentCommentCell = null;
+
+// ===== Рендер таблицы =====
+function renderTable() {
+  const cols = COLUMN_STRUCTURE;
+  const students = STUDENTS.filter(s => s.group === gid);
+
+  // thead
+  let head = '<tr><th class="sticky-column" style="min-width:220px;left:0;background:#fff;z-index:3;">Студент</th>';
+  cols.forEach(c => {
+    let cls = '';
+    if (c.type === 'module') cls = 'col-module';
+    if (c.type === 'total')  cls = 'col-total';
+    head += `<th class="${cls}">
+      <div class="d-flex align-items-center gap-1">
+        <span>${c.title}</span>
+        ${c.type==='intermediate' ? `
+          <button class="btn btn-sm btn-link text-muted p-0" title="Настроить" onclick="openSumSettings()">
+            <i class="bi bi-gear"></i></button>` : ''}
+      </div>
+    </th>`;
+  });
+  head += '</tr>';
+  document.querySelector('#grade-table thead').innerHTML = head;
+
+  // tbody
+  let body = '';
+  students.forEach(s => {
+    body += `<tr><td class="sticky-column" style="min-width:220px;left:0;background:#fff;z-index:1;">
+      <div class="d-flex align-items-center gap-2">
+        <span class="avatar avatar-sm">${s.avatar}</span>
+        <span class="fw-semibold">${s.name}</span>
+      </div></td>`;
+    cols.forEach(c => {
+      const cellKey = s.id + '_' + c.id;
+      const g = GRADES[cellKey] || { value: '', comment: null };
+      const hasComment = !!getCommentByCell(cellKey);
+      const editable = c.type === 'module' || c.type === 'total' ? 'readonly' : '';
+      const sumClass = (c.type === 'module' || c.type === 'total') ? 'fw-bold' : '';
+
+      body += `<td class="cell-grade">
+        <div class="position-relative d-flex align-items-center justify-content-center">
+          <input class="cell-input ${hasComment?'has-comment':''} ${sumClass}"
+                 value="${g.value}" ${editable}
+                 data-cell="${cellKey}"
+                 onchange="onGradeChange(this)"
+                 onfocus="this.select()">
+          ${hasComment ? `<button class="btn btn-sm btn-link text-warning p-0 ms-1"
+            title="Открыть диалог" onclick="openComment('${cellKey}')"><i class="bi bi-chat-dots-fill"></i></button>`
+            : `<button class="btn btn-sm btn-link text-muted opacity-50 p-0 ms-1"
+            title="Добавить комментарий" onclick="openComment('${cellKey}')"><i class="bi bi-chat"></i></button>`}
+        </div>
+      </td>`;
+    });
+    body += '</tr>';
+  });
+  document.querySelector('#grade-table tbody').innerHTML = body;
+}
+
+function onGradeChange(input) {
+  // демо: студент получит уведомление о новом балле
+  toast('Балл сохранён — студент получит уведомление (демо)', 'success');
+}
+
+// ===== Комментарии =====
+function openComment(cellKey) {
+  currentCommentCell = cellKey;
+  const [sid, cid] = cellKey.split('_');
+  const student = STUDENTS.find(s => s.id === Number(sid));
+  const col = COLUMN_STRUCTURE.find(c => c.id === cid);
+  document.getElementById('comment-context').innerHTML =
+    `<b>${student.name}</b> · столбец <b>${col.title}</b>`;
+
+  const thread = getCommentByCell(cellKey);
+  const wrap = document.getElementById('comment-thread');
+  if (!thread) { wrap.innerHTML = '<p class="text-muted small">Комментариев пока нет.</p>'; }
+  else {
+    wrap.innerHTML = '<div class="comment-thread">' + thread.thread.map(m => `
+      <div class="comment-bubble ${m.author==='teacher'?'teacher':''} mb-2">
+        <div class="d-flex justify-content-between">
+          <strong class="small">${m.name}</strong>
+          <span class="text-muted" style="font-size:.7rem;">${m.time}</span>
+        </div>
+        <div class="small">${m.text}</div>
+      </div>`).join('') + '</div>';
+  }
+  document.getElementById('comment-text').value = '';
+  new bootstrap.Modal(document.getElementById('commentModal')).show();
+}
+function sendComment() {
+  const txt = document.getElementById('comment-text').value.trim();
+  if (!txt) return;
+  demoAction('отправить комментарий');
+  bootstrap.Modal.getInstance(document.getElementById('commentModal')).hide();
+}
+
+// ===== Добавление столбца =====
+function openAddCol() {
+  document.getElementById('col-title').value = '';
+  new bootstrap.Modal(document.getElementById('addColModal')).show();
+}
+function confirmAddCol() {
+  const title = document.getElementById('col-title').value.trim();
+  if (!title) { toast('Введите название столбца','error'); return; }
+  demoAction('добавить столбец «'+title+'»');
+  bootstrap.Modal.getInstance(document.getElementById('addColModal')).hide();
+  renderTable();
+}
+
+// ===== Настройки суммирования =====
+function openSumSettings() {
+  ['before1','before2','before3'].forEach(pos => {
+    const cols = COLUMN_STRUCTURE.filter(c => c.position === pos);
+    document.getElementById('sum-'+pos).innerHTML = cols.length
+      ? cols.map(c => `<div class="form-check">
+            <input class="form-check-input" type="checkbox" id="sum-${c.id}" ${c.sumInto?'checked':''}>
+            <label class="form-check-label" for="sum-${c.id}">${c.title}</label>
+          </div>`).join('')
+      : '<p class="text-muted small mb-0">Нет промежуточных столбцов.</p>';
+  });
+  new bootstrap.Modal(document.getElementById('sumModal')).show();
+}
+function confirmSum() {
+  demoAction('применить суммирование');
+  bootstrap.Modal.getInstance(document.getElementById('sumModal')).hide();
+  // пересчитать модули — демо
+  toast('Модули пересчитаны (демо-режим)', 'info');
+}
+
+// ===== Импорт / экспорт =====
+function openExport() { new bootstrap.Modal(document.getElementById('exportModal')).show(); }
+function openImport() { new bootstrap.Modal(document.getElementById('importModal')).show(); }
+
+renderTable();
+</script>
+</body>
+</html>

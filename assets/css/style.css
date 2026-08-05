@@ -1,0 +1,309 @@
+:root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --primary-light: #eef2ff;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+}
+
+body {
+    font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--gray-50);
+    color: var(--gray-800);
+}
+
+/* ====== Кнопки ====== */
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* ====== Ссылки ====== */
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+/* ====== Navbar ====== */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.35rem;
+}
+
+.navbar-brand .brand-dot {
+    color: var(--primary);
+}
+
+/* ====== Hero (лендинг) ====== */
+.hero {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #fff;
+    padding: 6rem 0 5rem;
+}
+
+.hero h1 {
+    font-weight: 800;
+    font-size: 3rem;
+    line-height: 1.15;
+}
+
+.hero .lead {
+    font-size: 1.25rem;
+    opacity: 0.92;
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: var(--primary-light);
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+/* ====== Карточки ====== */
+.card {
+    border: 1px solid var(--gray-200);
+    border-radius: 0.85rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.card-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ====== Аутентификация ====== */
+.auth-wrap {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+}
+
+.auth-card {
+    max-width: 460px;
+    margin: 0 auto;
+}
+
+.role-pick {
+    cursor: pointer;
+    border: 2px solid var(--gray-200);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: all 0.15s ease;
+}
+
+.role-pick input:checked + .role-pick-body {
+    color: var(--primary);
+}
+
+.role-pick:has(input:checked) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+/* ====== Таблица баллов ====== */
+.grade-table {
+    font-size: 0.9rem;
+}
+
+.grade-table thead th {
+    background: var(--gray-100);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.grade-table thead th.col-module {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+
+.grade-table thead th.col-total {
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: 700;
+}
+
+.grade-table td.cell-grade {
+    text-align: center;
+    min-width: 80px;
+}
+
+.grade-table .cell-input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: center;
+    padding: 0.35rem;
+    border-radius: 6px;
+}
+
+.grade-table .cell-input:focus {
+    outline: 2px solid var(--primary);
+    background: #fff;
+}
+
+.grade-table .cell-input.has-comment {
+    background: #fffbeb;
+    border-bottom: 2px solid var(--warning);
+}
+
+.grade-table tbody tr:hover {
+    background: #fafbff;
+}
+
+/* ====== Бейджи ====== */
+.badge-role-teacher {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.badge-role-student {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-group {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+/* ====== Сайдбар ====== */
+.sidebar {
+    background: #fff;
+    border-right: 1px solid var(--gray-200);
+    min-height: calc(100vh - 70px);
+}
+
+.sidebar .nav-link {
+    color: var(--gray-700);
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.9rem;
+    margin: 2px 8px;
+    font-weight: 500;
+}
+
+.sidebar .nav-link:hover {
+    background: var(--gray-100);
+    color: var(--primary);
+}
+
+.sidebar .nav-link.active {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+
+/* ====== Комментарии ====== */
+.comment-thread {
+    border-left: 2px solid var(--gray-200);
+    padding-left: 1rem;
+    margin-left: 0.5rem;
+}
+
+.comment-bubble {
+    background: var(--gray-100);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+}
+
+.comment-bubble.teacher {
+    background: #ede9fe;
+}
+
+/* ====== Уведомления ====== */
+.notif-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 9px;
+    height: 9px;
+    background: var(--danger);
+    border-radius: 50%;
+}
+
+.notif-item {
+    border-bottom: 1px solid var(--gray-100);
+    padding: 0.75rem 1rem;
+}
+
+.notif-item.unread {
+    background: #eff6ff;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+/* ====== Утилиты ====== */
+.text-primary { color: var(--primary) !important; }
+.bg-primary-soft { background-color: var(--primary-light) !important; }
+.cursor-pointer { cursor: pointer; }
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--gray-600);
+}
+
+.empty-state .empty-icon {
+    font-size: 3rem;
+    opacity: 0.4;
+    margin-bottom: 1rem;
+}
+
+/* аватары */
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.avatar-sm { width: 28px; height: 28px; font-size: 0.7rem; }
+.avatar-lg { width: 48px; height: 48px; font-size: 1rem; }
