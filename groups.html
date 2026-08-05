@@ -105,27 +105,22 @@ function renderGroups() {
   grid.innerHTML = list.map((g, i) => {
     const subj = getSubject(g.subjectId);
     return `<div class="col-xl-3 col-lg-4 col-md-6" data-reveal data-delay="${(i%4)+1}">
-      <div class="card feature-card h-100">
+      <a href="gradebook.html?group=${g.id}" class="card feature-card h-100 d-block text-decoration-none" style="color:var(--text);">
         <div class="d-flex justify-content-between align-items-start">
           <span class="badge ${g.level==='Магистратура'?'badge-role-teacher':'badge-role-student'}">${g.level}</span>
-          <div class="dropdown">
-            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="gradebook.html?group=${g.id}"><i class="bi bi-table me-2"></i>Журнал</a></li>
-              <li><a class="dropdown-item" href="group-form.html?id=${g.id}"><i class="bi bi-pencil me-2"></i>Редактировать</a></li>
-              <li><a class="dropdown-item" href="group-members.html?group=${g.id}"><i class="bi bi-people me-2"></i>Студенты</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item text-danger" onclick="askDelete(${g.id}, '${g.name}')"><i class="bi bi-trash me-2"></i>Удалить</a></li>
-            </ul>
-          </div>
+          <span class="badge badge-group"><i class="bi bi-calendar me-1"></i>${g.year}</span>
         </div>
         <h5 class="fw-bold mt-3 mb-1">${g.name}</h5>
         <p class="small mb-2" style="color:var(--text-muted);">${subj.name}</p>
         <div class="d-flex gap-3 small mb-3" style="color:var(--text-muted);">
-          <span><i class="bi bi-people"></i> ${g.students}</span>
-          <span><i class="bi bi-calendar"></i> ${g.year}</span>
+          <span><i class="bi bi-people"></i> ${g.students} студ.</span>
         </div>
-        <div class="d-grid"><a href="gradebook.html?group=${g.id}" class="btn btn-outline-primary btn-sm">Открыть журнал</a></div>
+        <span class="btn btn-primary btn-sm w-100"><i class="bi bi-table me-1"></i> Открыть журнал</span>
+      </a>
+      <div class="d-flex gap-2 mt-2">
+        <a href="group-form.html?id=${g.id}" class="btn btn-light btn-sm flex-grow-1"><i class="bi bi-pencil me-1"></i> Редактировать</a>
+        <a href="group-members.html?group=${g.id}" class="btn btn-light btn-sm" title="Студенты"><i class="bi bi-people"></i></a>
+        <button class="btn btn-light btn-sm text-danger" title="Удалить" onclick="askDelete(${g.id}, '${g.name}')"><i class="bi bi-trash"></i></button>
       </div>
     </div>`;
   }).join('');

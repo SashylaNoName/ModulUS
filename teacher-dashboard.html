@@ -63,14 +63,13 @@ document.getElementById('stats').innerHTML =
 
 document.getElementById('dash-groups').innerHTML = GROUPS.map(g => {
   const subj = getSubject(g.subjectId);
-  return `<tr>
-    <td><a href="gradebook.html?group=${g.id}" class="fw-semibold">${g.name}</a></td>
+  return `<tr class="cursor-pointer align-middle" onclick="location.href='gradebook.html?group=${g.id}'">
+    <td class="fw-semibold">${g.name}</td>
     <td>${subj.name}</td>
     <td><span class="badge ${g.level==='Магистратура'?'badge-role-teacher':'badge-role-student'}">${g.level}</span></td>
     <td>${g.students}</td>
-    <td class="text-end">
-      <a href="gradebook.html?group=${g.id}" class="btn btn-sm btn-outline-primary">Журнал</a>
-      <a href="group-form.html?id=${g.id}" class="btn btn-sm btn-light"><i class="bi bi-pencil"></i></a>
+    <td class="text-end" onclick="event.stopPropagation()">
+      <a href="group-form.html?id=${g.id}" class="btn btn-sm btn-light" title="Редактировать"><i class="bi bi-pencil"></i></a>
     </td>
   </tr>`;
 }).join('');

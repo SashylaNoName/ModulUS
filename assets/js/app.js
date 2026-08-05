@@ -244,8 +244,8 @@ function renderHeader() {
           ${themeToggleBtn()}
           <!-- Уведомления -->
           <div class="dropdown">
-            <button class="theme-toggle position-relative" data-bs-toggle="dropdown" title="Уведомления">
-              🔔<span class="notif-dot"></span>
+            <button class="theme-toggle position-relative" data-bs-toggle="dropdown" title="Уведомления" aria-label="Уведомления">
+              <i class="bi bi-bell"></i><span class="notif-dot"></span>
             </button>
             <div class="dropdown-menu dropdown-menu-end p-0" style="width:360px;">
               <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
@@ -266,7 +266,7 @@ function renderHeader() {
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="${homeLink}">🏠 Главная</a></li>
-              <li><a class="dropdown-item" href="notifications.html">🔔 Уведомления</a></li>
+              <li><a class="dropdown-item" href="notifications.html"><i class="bi bi-bell me-1"></i> Уведомления</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item text-danger" href="index.html">🚪 Выйти</a></li>
             </ul>
