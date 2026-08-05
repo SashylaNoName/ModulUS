@@ -7,34 +7,32 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="assets/css/style.css" rel="stylesheet">
+  <script>(function(){var t=localStorage.getItem('modulus-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
 <div id="app-header"></div>
 
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-lg-2 col-md-3 p-0" id="app-sidebar"></div>
-    <div class="col-lg-10 col-md-9 p-4">
+  <div class="row g-0">
+    <div class="col-lg-2 col-md-3" id="app-sidebar"></div>
+    <div class="col-lg-10 col-md-9 p-3 p-md-4">
 
-      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-4" data-reveal>
         <div>
           <h3 class="fw-bold mb-1">Мои группы</h3>
-          <p class="text-muted mb-0">Создавайте, редактируйте и управляйте учебными группами</p>
+          <p class="mb-0" style="color:var(--text-muted);">Создавайте и управляйте учебными группами</p>
         </div>
         <a href="group-form.html" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Создать группу</a>
       </div>
 
-      <!-- Фильтры -->
-      <div class="card mb-4">
+      <div class="card mb-4" data-reveal>
         <div class="card-body">
           <div class="row g-2 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md-4 col-12">
               <label class="form-label small fw-semibold">Предмет</label>
-              <select class="form-select" id="filter-subject">
-                <option value="">Все предметы</option>
-              </select>
+              <select class="form-select" id="filter-subject"><option value="">Все предметы</option></select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
               <label class="form-label small fw-semibold">Уровень</label>
               <select class="form-select" id="filter-level">
                 <option value="">Все</option>
@@ -42,11 +40,11 @@
                 <option value="Магистратура">Магистратура</option>
               </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
               <label class="form-label small fw-semibold">Поиск</label>
-              <input type="text" class="form-control" id="filter-search" placeholder="Название группы...">
+              <input type="text" class="form-control" id="filter-search" placeholder="Название...">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-12">
               <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
                 <i class="bi bi-arrow-counterclockwise"></i> Сбросить
               </button>
@@ -55,7 +53,6 @@
         </div>
       </div>
 
-      <!-- Сетка групп -->
       <div class="row g-3" id="groups-grid"></div>
       <div class="empty-state d-none" id="empty-state">
         <div class="empty-icon"><i class="bi bi-inbox"></i></div>
@@ -67,20 +64,15 @@
   </div>
 </div>
 
-<!-- Модалка подтверждения удаления -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Удалить группу?</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        Группа <b id="del-name"></b> и все связанные с ней оценки будут удалены без возможности восстановления.
-      </div>
+      <div class="modal-header"><h5 class="modal-title">Удалить группу?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">Группа <b id="del-name"></b> и все оценки будут удалены без возможности восстановления.</div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
-        <button type="button" class="btn btn-danger" onclick="confirmDelete()">Удалить</button>
+        <button class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
+        <button class="btn btn-primary" style="background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 6px 18px rgba(239,68,68,.35);" onclick="confirmDelete()">Удалить</button>
       </div>
     </div>
   </div>
@@ -93,93 +85,69 @@ CURRENT_USER.role = 'teacher';
 mountHeader();
 document.getElementById('app-sidebar').innerHTML = renderTeacherSidebar('groups');
 
-// заполнить фильтр предметов
 const fSubj = document.getElementById('filter-subject');
-SUBJECTS.forEach(s => {
-  const o = document.createElement('option');
-  o.value = s.id; o.textContent = s.name;
-  fSubj.appendChild(o);
-});
-
-let pendingDelete = null;
+SUBJECTS.forEach(s => { const o = document.createElement('option'); o.value=s.id; o.textContent=s.name; fSubj.appendChild(o); });
 
 function renderGroups() {
   const subj = fSubj.value;
   const lvl  = document.getElementById('filter-level').value;
   const q    = document.getElementById('filter-search').value.trim().toLowerCase();
-
   let list = GROUPS.filter(g => {
     if (subj && g.subjectId !== Number(subj)) return false;
     if (lvl && g.level !== lvl) return false;
     if (q && !g.name.toLowerCase().includes(q)) return false;
     return true;
   });
-
   const grid = document.getElementById('groups-grid');
   const empty = document.getElementById('empty-state');
-
-  if (!list.length) {
-    grid.innerHTML = '';
-    empty.classList.remove('d-none');
-    return;
-  }
+  if (!list.length) { grid.innerHTML=''; empty.classList.remove('d-none'); return; }
   empty.classList.add('d-none');
-
-  grid.innerHTML = list.map(g => {
+  grid.innerHTML = list.map((g, i) => {
     const subj = getSubject(g.subjectId);
-    return `<div class="col-xl-3 col-lg-4 col-md-6">
-      <div class="card card-hover h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <span class="badge ${g.level==='Магистратура'?'badge-role-teacher':'badge-role-student'}">${g.level}</span>
-            <div class="dropdown">
-              <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="gradebook.html?group=${g.id}"><i class="bi bi-table me-2"></i>Открыть журнал</a></li>
-                <li><a class="dropdown-item" href="group-form.html?id=${g.id}"><i class="bi bi-pencil me-2"></i>Редактировать</a></li>
-                <li><a class="dropdown-item" href="group-members.html?group=${g.id}"><i class="bi bi-people me-2"></i>Студенты</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" onclick="askDelete(${g.id}, '${g.name}')"><i class="bi bi-trash me-2"></i>Удалить</a></li>
-              </ul>
-            </div>
-          </div>
-          <h5 class="fw-bold mt-3 mb-1">${g.name}</h5>
-          <p class="text-muted small mb-2">${subj.name}</p>
-          <div class="d-flex gap-3 small text-muted mb-3">
-            <span><i class="bi bi-people"></i> ${g.students} студ.</span>
-            <span><i class="bi bi-calendar"></i> ${g.year}</span>
-          </div>
-          <div class="d-grid">
-            <a href="gradebook.html?group=${g.id}" class="btn btn-outline-primary btn-sm">Открыть журнал</a>
+    return `<div class="col-xl-3 col-lg-4 col-md-6" data-reveal data-delay="${(i%4)+1}">
+      <div class="card feature-card h-100">
+        <div class="d-flex justify-content-between align-items-start">
+          <span class="badge ${g.level==='Магистратура'?'badge-role-teacher':'badge-role-student'}">${g.level}</span>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="gradebook.html?group=${g.id}"><i class="bi bi-table me-2"></i>Журнал</a></li>
+              <li><a class="dropdown-item" href="group-form.html?id=${g.id}"><i class="bi bi-pencil me-2"></i>Редактировать</a></li>
+              <li><a class="dropdown-item" href="group-members.html?group=${g.id}"><i class="bi bi-people me-2"></i>Студенты</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" onclick="askDelete(${g.id}, '${g.name}')"><i class="bi bi-trash me-2"></i>Удалить</a></li>
+            </ul>
           </div>
         </div>
+        <h5 class="fw-bold mt-3 mb-1">${g.name}</h5>
+        <p class="small mb-2" style="color:var(--text-muted);">${subj.name}</p>
+        <div class="d-flex gap-3 small mb-3" style="color:var(--text-muted);">
+          <span><i class="bi bi-people"></i> ${g.students}</span>
+          <span><i class="bi bi-calendar"></i> ${g.year}</span>
+        </div>
+        <div class="d-grid"><a href="gradebook.html?group=${g.id}" class="btn btn-outline-primary btn-sm">Открыть журнал</a></div>
       </div>
     </div>`;
   }).join('');
+  initReveal();
 }
-
 function resetFilters() {
-  fSubj.value = '';
-  document.getElementById('filter-level').value = '';
-  document.getElementById('filter-search').value = '';
-  renderGroups();
+  fSubj.value=''; document.getElementById('filter-level').value='';
+  document.getElementById('filter-search').value=''; renderGroups();
 }
-
 [fSubj, document.getElementById('filter-level'), document.getElementById('filter-search')]
   .forEach(el => el.addEventListener('input', renderGroups));
 
 function askDelete(id, name) {
-  pendingDelete = id;
   document.getElementById('del-name').textContent = name;
   new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
 function confirmDelete() {
   bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
   toast('Группа удалена (демо-режим)', 'success');
-  pendingDelete = null;
 }
-
 renderGroups();
+initPage();
 </script>
 </body>
 </html>

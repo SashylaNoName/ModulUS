@@ -7,33 +7,31 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="assets/css/style.css" rel="stylesheet">
+  <script>(function(){var t=localStorage.getItem('modulus-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
 <div id="app-header"></div>
 
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-lg-2 col-md-3 p-0" id="app-sidebar"></div>
-    <div class="col-lg-10 col-md-9 p-4">
+  <div class="row g-0">
+    <div class="col-lg-2 col-md-3" id="app-sidebar"></div>
+    <div class="col-lg-10 col-md-9 p-3 p-md-4">
 
-      <div class="d-flex align-items-center mb-4">
+      <div class="d-flex align-items-center mb-4" data-reveal>
         <a href="groups.html" class="btn btn-light me-2"><i class="bi bi-arrow-left"></i></a>
         <h3 class="fw-bold mb-0" id="form-title">Создать группу</h3>
       </div>
 
       <div class="row g-4">
-        <!-- основное -->
-        <div class="col-lg-8">
+        <div class="col-lg-8" data-reveal="left">
           <div class="card">
             <div class="card-body p-4">
               <form onsubmit="return saveGroup(event)">
                 <div class="row g-3">
                   <div class="col-md-6">
                     <label class="form-label fw-semibold">Название группы <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="g-name" placeholder="ПИб-231"
-                           oninput="parseGroupName()" required>
-                    <div class="form-text">Формат: <b>специальность</b> + <b>б/м</b> + <b>год</b> + <b>номер</b>.
-                      б — бакалавриат, м — магистратура.</div>
+                    <input type="text" class="form-control" id="g-name" placeholder="ПИб-231" oninput="parseGroupName()" required>
+                    <div class="form-text">Формат: <b>спец.</b> + <b>б/м</b> + <b>год</b> + <b>номер</b>. б — бакалавриат, м — магистратура.</div>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label fw-semibold">Предмет <span class="text-danger">*</span></label>
@@ -41,70 +39,40 @@
                   </div>
                 </div>
 
-                <!-- авто-разбор названия -->
                 <div class="row g-3 mt-1">
-                  <div class="col-md-4">
-                    <label class="form-label small text-muted">Уровень</label>
-                    <input type="text" class="form-control-plaintext fw-semibold" id="g-level" value="—">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label small text-muted">Год поступления</label>
-                    <input type="text" class="form-control-plaintext fw-semibold" id="g-year" value="—">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label small text-muted">Номер группы</label>
-                    <input type="text" class="form-control-plaintext fw-semibold" id="g-number" value="—">
-                  </div>
+                  <div class="col-md-4"><label class="form-label small" style="color:var(--text-muted);">Уровень</label>
+                    <div class="fw-bold text-gradient" id="g-level">—</div></div>
+                  <div class="col-md-4"><label class="form-label small" style="color:var(--text-muted);">Год поступления</label>
+                    <div class="fw-bold text-gradient" id="g-year">—</div></div>
+                  <div class="col-md-4"><label class="form-label small" style="color:var(--text-muted);">Номер группы</label>
+                    <div class="fw-bold text-gradient" id="g-number">—</div></div>
                 </div>
 
-                <hr>
+                <hr class="divider-gradient my-4">
                 <h6 class="fw-bold">Способ добавления студентов</h6>
                 <div class="row g-2">
-                  <div class="col-md-4">
-                    <label class="role-pick d-block text-center">
-                      <input type="radio" name="addmode" value="manual" class="d-none" checked onchange="switchMode()">
-                      <div class="role-pick-body">
-                        <div class="fs-4">✍️</div>
-                        <div class="fw-semibold small">Вручную</div>
-                      </div>
-                    </label>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="role-pick d-block text-center">
-                      <input type="radio" name="addmode" value="link" class="d-none" onchange="switchMode()">
-                      <div class="role-pick-body">
-                        <div class="fs-4">🔗</div>
-                        <div class="fw-semibold small">Ссылка-приглашение</div>
-                      </div>
-                    </label>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="role-pick d-block text-center">
-                      <input type="radio" name="addmode" value="excel" class="d-none" onchange="switchMode()">
-                      <div class="role-pick-body">
-                        <div class="fs-4">📑</div>
-                        <div class="fw-semibold small">Импорт из Excel</div>
-                      </div>
-                    </label>
-                  </div>
+                  <div class="col-md-4"><label class="role-pick d-block text-center">
+                    <input type="radio" name="addmode" value="manual" class="d-none" checked onchange="switchMode()">
+                    <div class="fs-4">✍️</div><div class="fw-semibold small">Вручную</div></label></div>
+                  <div class="col-md-4"><label class="role-pick d-block text-center">
+                    <input type="radio" name="addmode" value="link" class="d-none" onchange="switchMode()">
+                    <div class="fs-4">🔗</div><div class="fw-semibold small">Ссылка</div></label></div>
+                  <div class="col-md-4"><label class="role-pick d-block text-center">
+                    <input type="radio" name="addmode" value="excel" class="d-none" onchange="switchMode()">
+                    <div class="fs-4">📑</div><div class="fw-semibold small">Импорт Excel</div></label></div>
                 </div>
 
-                <!-- блоки по режиму -->
                 <div id="mode-manual" class="mt-3">
-                  <label class="form-label small">Список студентов (ФИО или email, по одному на строку)</label>
-                  <textarea class="form-control" rows="4"
-                            placeholder="Алексеев Артём Дмитриевич&#10;Борисова Анна Сергеевна&#10;volkov@stud.ru"></textarea>
+                  <label class="form-label small">Список студентов (по одному на строку)</label>
+                  <textarea class="form-control" rows="4" placeholder="Алексеев Артём Дмитриевич&#10;Борисова Анна Сергеевна&#10;volkov@stud.ru"></textarea>
                 </div>
                 <div id="mode-link" class="mt-3 d-none">
-                  <div class="alert alert-info">
-                    После создания группы вы получите ссылку-приглашение. Студенты смогут присоединиться сами —
-                    вам придёт уведомление о каждом новом участнике.
-                  </div>
+                  <div class="alert alert-info">После создания вы получите ссылку-приглашение. Студенты присоединятся сами — вам придёт уведомление.</div>
                 </div>
                 <div id="mode-excel" class="mt-3 d-none">
                   <label class="form-label small">Файл Excel со списком студентов</label>
                   <input type="file" class="form-control" accept=".xlsx,.xls">
-                  <div class="form-text">Шаблон: ФИО в первом столбце, email — во втором.</div>
+                  <div class="form-text">Шаблон: ФИО в колонке A, email — в колонке B.</div>
                 </div>
 
                 <div class="d-flex gap-2 mt-4">
@@ -116,20 +84,17 @@
           </div>
         </div>
 
-        <!-- превью / настройки -->
-        <div class="col-lg-4">
-          <div class="card">
-            <div class="card-body">
-              <h6 class="fw-bold"><i class="bi bi-info-circle"></i> Как формируется название</h6>
-              <ul class="small text-muted mb-0 ps-3">
-                <li><b>ПИ</b> — специальность (сокращение)</li>
-                <li><b>б / м</b> — бакалавриат / магистратура</li>
-                <li><b>23</b> — год поступления (2023)</li>
-                <li><b>1 / 2</td> — номер группы (1-я или 2-я)</li>
-              </ul>
-              <div class="bg-primary-soft rounded p-2 mt-3 small">
-                <b>Пример:</b> ПИм-231 → Программирование, магистратура, набор 2023, 1-я группа.
-              </div>
+        <div class="col-lg-4" data-reveal="right">
+          <div class="glass p-4">
+            <h6 class="fw-bold"><i class="bi bi-info-circle text-gradient"></i> Как читать название</h6>
+            <ul class="small mb-0 ps-3" style="color:var(--text-muted);">
+              <li><b>ПИ</b> — специальность</li>
+              <li><b>б / м</b> — бакалавриат / магистратура</li>
+              <li><b>23</b> — год поступления (2023)</li>
+              <li><b>1 / 2</b> — номер группы</li>
+            </ul>
+            <div class="mt-3 p-2 rounded" style="background:var(--grad-brand-soft);">
+              <small><b>Пример:</b> ПИм-231 → магистратура, набор 2023, 1-я группа.</small>
             </div>
           </div>
         </div>
@@ -146,56 +111,35 @@ CURRENT_USER.role = 'teacher';
 mountHeader();
 document.getElementById('app-sidebar').innerHTML = renderTeacherSidebar('groups');
 
-// заполнить предметы
 const gSubj = document.getElementById('g-subject');
-SUBJECTS.forEach(s => {
-  const o = document.createElement('option');
-  o.value = s.id; o.textContent = s.name;
-  gSubj.appendChild(o);
-});
+SUBJECTS.forEach(s => { const o = document.createElement('option'); o.value=s.id; o.textContent=s.name; gSubj.appendChild(o); });
 
-// если ?id= — режим редактирования
 const params = new URLSearchParams(location.search);
 if (params.get('id')) {
   const g = getGroup(params.get('id'));
-  if (g) {
-    document.getElementById('form-title').textContent = 'Редактировать группу';
-    document.getElementById('g-name').value = g.name;
-    gSubj.value = g.subjectId;
-    parseGroupName();
-  }
+  if (g) { document.getElementById('form-title').textContent='Редактировать группу';
+    document.getElementById('g-name').value=g.name; gSubj.value=g.subjectId; parseGroupName(); }
 }
-
-// Разбор названия группы вида «ПИм-231», «ПИб-232»
 function parseGroupName() {
   const raw = document.getElementById('g-name').value.trim();
   const m = raw.match(/^([A-Za-zА-Яа-я]+)([бмБМ])-?(\d{2})(\d)$/);
-  if (!m) {
-    document.getElementById('g-level').value = '—';
-    document.getElementById('g-year').value = '—';
-    document.getElementById('g-number').value = '—';
-    return;
-  }
-  const lvl = m[2].toLowerCase() === 'м' ? 'Магистратура' : 'Бакалавриат';
-  document.getElementById('g-level').value = lvl;
-  document.getElementById('g-year').value = '20' + m[3];
-  document.getElementById('g-number').value = m[4];
+  if (!m) { ['g-level','g-year','g-number'].forEach(id => document.getElementById(id).textContent='—'); return; }
+  document.getElementById('g-level').textContent = m[2].toLowerCase()==='м' ? 'Магистратура' : 'Бакалавриат';
+  document.getElementById('g-year').textContent = '20' + m[3];
+  document.getElementById('g-number').textContent = m[4];
 }
-
 function switchMode() {
   const mode = document.querySelector('input[name=addmode]:checked').value;
-  ['manual','link','excel'].forEach(m => {
-    document.getElementById('mode-'+m).classList.toggle('d-none', m !== mode);
-  });
+  ['manual','link','excel'].forEach(m => document.getElementById('mode-'+m).classList.toggle('d-none', m!==mode));
 }
-
 function saveGroup(e) {
   e.preventDefault();
   const editing = !!params.get('id');
-  toast(editing ? 'Группа обновлена (демо-режим)' : 'Группа создана (демо-режим)', 'success');
-  setTimeout(() => location.href = 'groups.html', 700);
+  toast(editing ? 'Группа обновлена (демо)' : 'Группа создана (демо)', 'success');
+  setTimeout(() => location.href='groups.html', 700);
   return false;
 }
+initPage();
 </script>
 </body>
 </html>

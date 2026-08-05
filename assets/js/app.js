@@ -174,47 +174,77 @@ const NOTIFICATIONS_STUDENT = [
 ];
 
 /* =========================================================
-   Хелперы
+   Хелперы + дизайн-система (тема, анимации)
    ========================================================= */
 
 function $(sel, root = document) { return root.querySelector(sel); }
 function $all(sel, root = document) { return [...root.querySelectorAll(sel)]; }
 
-function getSubject(id) {
-    return SUBJECTS.find(s => s.id === Number(id));
-}
-function getGroup(id) {
-    return GROUPS.find(g => g.id === Number(id));
-}
-function getCommentByCell(cellKey) {
-    return COMMENTS.find(c => c.cellKey === cellKey);
-}
+function getSubject(id) { return SUBJECTS.find(s => s.id === Number(id)); }
+function getGroup(id)   { return GROUPS.find(g => g.id === Number(id)); }
+function getCommentByCell(cellKey) { return COMMENTS.find(c => c.cellKey === cellKey); }
 
 // Инициалы из ФИО
 function initials(full) {
     return full.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 }
 
-// ====== Общий header для «кабинета» (после входа) ======
-function renderHeader(active = '') {
+/* =========================================================
+   Тема: сохраняем выбор в localStorage, применяем до рендера
+   ========================================================= */
+function getTheme() { return localStorage.getItem('modulus-theme') || 'light'; }
+function setTheme(t) {
+    localStorage.setItem('modulus-theme', t);
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelectorAll('.theme-toggle').forEach(b => {
+        b.textContent = t === 'dark' ? '☀️' : '🌙';
+        b.title = t === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+    });
+}
+function toggleTheme() {
+    setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+}
+// применить как можно раньше — вызывается в <head> см. ниже initThemeEarly()
+
+/* =========================================================
+   Кнопка темы (HTML) — вставляется в шапку/лендинг
+   ========================================================= */
+function themeToggleBtn(extraClass = '') {
+    return `<button class="theme-toggle ${extraClass}" onclick="toggleTheme()" title="Сменить тему"></button>`;
+}
+// заполнить иконкой все существующие кнопки темы на странице
+function paintThemeButtons() {
+    const t = getTheme();
+    document.querySelectorAll('.theme-toggle').forEach(b => {
+        b.textContent = t === 'dark' ? '☀️' : '🌙';
+    });
+}
+
+/* =========================================================
+   Общий header для «кабинета» (после входа)
+   ========================================================= */
+function renderHeader() {
     const user = CURRENT_USER;
     const roleBadge = user.role === 'teacher'
         ? '<span class="badge badge-role-teacher">Преподаватель</span>'
         : '<span class="badge badge-role-student">Студент</span>';
-
     const homeLink = user.role === 'teacher' ? 'teacher-dashboard.html' : 'student-dashboard.html';
 
     return `
-    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
       <div class="container-fluid px-3">
+        <button class="btn btn-light d-lg-none me-2" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+          <i class="bi bi-list"></i>
+        </button>
         <a class="navbar-brand" href="${homeLink}">
           Modul<span class="brand-dot">US</span>
         </a>
-        <div class="d-flex align-items-center gap-3 ms-auto">
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          ${themeToggleBtn()}
           <!-- Уведомления -->
           <div class="dropdown">
-            <button class="btn btn-light position-relative rounded-circle d-inline-flex align-items-center justify-content-center"
-                    style="width:40px;height:40px;" data-bs-toggle="dropdown">
+            <button class="theme-toggle position-relative" data-bs-toggle="dropdown" title="Уведомления">
               🔔<span class="notif-dot"></span>
             </button>
             <div class="dropdown-menu dropdown-menu-end p-0" style="width:360px;">
@@ -227,18 +257,18 @@ function renderHeader(active = '') {
           </div>
           <!-- Профиль -->
           <div class="dropdown">
-            <button class="btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+            <button class="btn d-flex align-items-center gap-2 p-1" data-bs-toggle="dropdown">
               <span class="avatar">${user.avatar}</span>
-              <span class="text-start d-none d-md-block">
-                <span class="d-block fw-semibold lh-1">${user.name}</span>
+              <span class="text-start d-none d-md-block lh-1">
+                <span class="d-block fw-semibold" style="font-size:.9rem;">${user.name}</span>
                 ${roleBadge}
               </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="${homeLink}">Главная</a></li>
-              <li><a class="dropdown-item" href="notifications.html">Уведомления</a></li>
+              <li><a class="dropdown-item" href="${homeLink}">🏠 Главная</a></li>
+              <li><a class="dropdown-item" href="notifications.html">🔔 Уведомления</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item text-danger" href="index.html">Выйти</a></li>
+              <li><a class="dropdown-item text-danger" href="index.html">🚪 Выйти</a></li>
             </ul>
           </div>
         </div>
@@ -246,74 +276,139 @@ function renderHeader(active = '') {
     </nav>`;
 }
 
-function mountHeader(active) {
+function mountHeader() {
     const el = document.getElementById('app-header');
-    if (el) el.innerHTML = renderHeader(active);
-    // заполнить превью уведомлений
+    if (el) el.innerHTML = renderHeader();
+    paintThemeButtons();
+    // превью уведомлений
     const list = document.getElementById('notif-list');
     if (list) {
         const items = CURRENT_USER.role === 'teacher' ? NOTIFICATIONS_TEACHER : NOTIFICATIONS_STUDENT;
         list.innerHTML = items.slice(0, 3).map(n => `
-          <a href="notifications.html" class="notif-item d-block text-decoration-none text-dark ${n.unread ? 'unread' : ''}">
+          <a href="notifications.html" class="notif-item d-block text-decoration-none ${n.unread ? 'unread' : ''}" style="color:var(--text);">
             <div class="d-flex gap-2">
               <span class="fs-5">${n.icon}</span>
               <div class="flex-grow-1">
                 <div class="fw-semibold small">${n.title}</div>
-                <div class="small">${n.text}</div>
-                <div class="text-muted" style="font-size:.72rem;">${n.time}</div>
+                <div class="small" style="color:var(--text-muted);">${n.text}</div>
+                <div style="color:var(--text-soft);font-size:.72rem;">${n.time}</div>
               </div>
             </div>
           </a>`).join('');
     }
 }
 
-// ====== Сайдбар ======
+/* =========================================================
+   Сайдбар: десктоп (в сетке) + мобильный offcanvas
+   ========================================================= */
 function renderTeacherSidebar(active) {
     const items = [
-        { id: 'dashboard', icon: '🏠', label: 'Главная', href: 'teacher-dashboard.html' },
+        { id: 'dashboard', icon: '🏠', label: 'Главная',    href: 'teacher-dashboard.html' },
         { id: 'groups',    icon: '👥', label: 'Мои группы', href: 'groups.html' },
-        { id: 'subjects',  icon: '📚', label: 'Предметы', href: 'subjects.html' },
-        { id: 'notif',     icon: '🔔', label: 'Уведомления', href: 'notifications.html' },
+        { id: 'subjects',  icon: '📚', label: 'Предметы',   href: 'subjects.html' },
+        { id: 'notif',     icon: '🔔', label: 'Уведомления',href: 'notifications.html' },
     ];
     return sidebarHtml(items, active);
 }
-
 function renderStudentSidebar(active) {
     const items = [
-        { id: 'dashboard', icon: '🏠', label: 'Главная', href: 'student-dashboard.html' },
-        { id: 'subjects',  icon: '📚', label: 'Мои предметы', href: 'student-subjects.html' },
-        { id: 'grades',    icon: '📊', label: 'Мои оценки', href: 'student-grades.html' },
+        { id: 'dashboard', icon: '🏠', label: 'Главная',     href: 'student-dashboard.html' },
+        { id: 'subjects',  icon: '📚', label: 'Мои предметы',href: 'student-subjects.html' },
+        { id: 'grades',    icon: '📊', label: 'Мои оценки',  href: 'student-grades.html' },
         { id: 'notif',     icon: '🔔', label: 'Уведомления', href: 'notifications.html' },
     ];
     return sidebarHtml(items, active);
 }
-
 function sidebarHtml(items, active) {
-    return `<aside class="sidebar p-2">
-      <ul class="nav flex-column">
-        ${items.map(i => `
-          <li class="nav-item">
-            <a class="nav-link ${active === i.id ? 'active' : ''}" href="${i.href}">
-              <span class="me-2">${i.icon}</span>${i.label}
-            </a>
-          </li>`).join('')}
-      </ul>
+    const links = items.map(i => `
+      <li class="nav-item">
+        <a class="nav-link ${active === i.id ? 'active' : ''}" href="${i.href}">
+          <span>${i.icon}</span><span>${i.label}</span>
+        </a>
+      </li>`).join('');
+
+    // десктопный сайдбар
+    const desktop = `<aside class="sidebar p-2 d-none d-lg-block">
+      <ul class="nav flex-column">${links}</ul>
     </aside>`;
+
+    // мобильный offcanvas (тот же набор пунктов)
+    const mobile = `
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Меню</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body p-0">
+        <ul class="nav flex-column">${links}</ul>
+      </div>
+    </div>`;
+
+    return desktop + mobile;
 }
 
-// Простые имитации действий — показывают alert/toast.
+/* =========================================================
+   Карточка статистики (для дашбордов)
+   ========================================================= */
+function statCard(icon, value, label, delay = 0) {
+    return `<div class="col-md-3 col-6" data-reveal data-delay="${delay}">
+      <div class="glass p-3 d-flex align-items-center gap-3 h-100">
+        <span class="feature-icon soft mb-0" style="width:48px;height:48px;font-size:1.2rem;">${icon}</span>
+        <div>
+          <div class="fs-3 fw-bold lh-1 text-gradient">${value}</div>
+          <small style="color:var(--text-muted);">${label}</small>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* =========================================================
+   Toast + демо-действия
+   ========================================================= */
 function toast(msg, type = 'success') {
-    const colors = { success: '#16a34a', error: '#dc2626', info: '#4f46e5' };
+    const bg = type === 'error'   ? 'linear-gradient(135deg,#ef4444,#b91c1c)'
+             : type === 'info'    ? 'linear-gradient(135deg,#6366f1,#8b5cf6)'
+             :                       'linear-gradient(135deg,#10b981,#059669)';
     const t = document.createElement('div');
-    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:${colors[type]};color:#fff;
-        padding:.8rem 1.2rem;border-radius:.6rem;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.2);
-        font-weight:500;max-width:360px;`;
+    t.style.cssText = `position:fixed;bottom:24px;right:24px;background:${bg};color:#fff;
+        padding:.9rem 1.3rem;border-radius:.8rem;z-index:9999;box-shadow:0 12px 30px rgba(0,0,0,.25);
+        font-weight:600;max-width:360px;opacity:0;transform:translateY(20px);
+        transition:opacity .3s,transform .3s;`;
     t.textContent = msg;
     document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2800);
+    requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'none'; });
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; }, 2600);
+    setTimeout(() => t.remove(), 3000);
 }
-
-// Кнопка-заглушка: «сохранить», «создать» и т.д. — демо-режим.
 function demoAction(action) {
     toast('Демо-режим: действие «' + action + '» сохранится в Laravel.', 'info');
+}
+
+/* =========================================================
+   Анимации появления при скролле (data-reveal)
+   ========================================================= */
+function initReveal() {
+    const els = $all('[data-reveal]');
+    if (!els.length) return;
+    if (!('IntersectionObserver' in window)) {
+        els.forEach(e => e.classList.add('in-view'));
+        return;
+    }
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(en => {
+            if (en.isIntersecting) {
+                en.target.classList.add('in-view');
+                io.unobserve(en.target);
+            }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(e => io.observe(e));
+}
+
+/* =========================================================
+   Инициализация страницы (вызывается в конце каждой страницы)
+   ========================================================= */
+function initPage() {
+    paintThemeButtons();
+    initReveal();
 }
