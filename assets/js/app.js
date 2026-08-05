@@ -244,7 +244,7 @@ function renderHeader() {
           ${themeToggleBtn()}
           <!-- Уведомления -->
           <div class="dropdown">
-            <button class="theme-toggle position-relative" data-bs-toggle="dropdown" title="Уведомления" aria-label="Уведомления">
+            <button class="icon-btn position-relative" data-bs-toggle="dropdown" title="Уведомления" aria-label="Уведомления">
               <i class="bi bi-bell"></i><span class="notif-dot"></span>
             </button>
             <div class="dropdown-menu dropdown-menu-end p-0" style="width:360px;">

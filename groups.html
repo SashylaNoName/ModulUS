@@ -104,18 +104,18 @@ function renderGroups() {
   empty.classList.add('d-none');
   grid.innerHTML = list.map((g, i) => {
     const subj = getSubject(g.subjectId);
-    return `<div class="col-xl-3 col-lg-4 col-md-6" data-reveal data-delay="${(i%4)+1}">
-      <a href="gradebook.html?group=${g.id}" class="card feature-card h-100 d-block text-decoration-none" style="color:var(--text);">
-        <div class="d-flex justify-content-between align-items-start">
+    return `<div class="col-xl-4 col-lg-6 col-md-6" data-reveal data-delay="${(i%3)+1}">
+      <a href="gradebook.html?group=${g.id}" class="group-card">
+        <div class="d-flex justify-content-between align-items-start mb-2">
           <span class="badge ${g.level==='Магистратура'?'badge-role-teacher':'badge-role-student'}">${g.level}</span>
           <span class="badge badge-group"><i class="bi bi-calendar me-1"></i>${g.year}</span>
         </div>
-        <h5 class="fw-bold mt-3 mb-1">${g.name}</h5>
-        <p class="small mb-2" style="color:var(--text-muted);">${subj.name}</p>
-        <div class="d-flex gap-3 small mb-3" style="color:var(--text-muted);">
-          <span><i class="bi bi-people"></i> ${g.students} студ.</span>
+        <div class="group-name">${g.name}</div>
+        <div class="group-meta small mb-3">${subj.name}</div>
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="group-meta small"><i class="bi bi-people me-1"></i>${g.students} студ.</span>
+          <span class="text-gradient fw-semibold small">Открыть журнал →</span>
         </div>
-        <span class="btn btn-primary btn-sm w-100"><i class="bi bi-table me-1"></i> Открыть журнал</span>
       </a>
       <div class="d-flex gap-2 mt-2">
         <a href="group-form.html?id=${g.id}" class="btn btn-light btn-sm flex-grow-1"><i class="bi bi-pencil me-1"></i> Редактировать</a>
