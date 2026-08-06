@@ -73,7 +73,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
-CURRENT_USER.role = 'student';
+CURRENT_USER.role = 'student'; saveRole('student');
 CURRENT_USER.name = 'Алексеев Артём Дмитриевич';
 CURRENT_USER.avatar = 'АА';
 mountHeader();
@@ -85,16 +85,19 @@ document.getElementById('subj-title').textContent = subj.name;
 
 const SID = 1; // текущий студент
 
+// студент видит только столбцы, НЕ скрытые преподавателем
+const VISIBLE_COLS = COLUMN_STRUCTURE.filter(c => !c.hidden);
+
 // заголовки таблицы
 document.getElementById('grade-head').innerHTML =
   '<tr><th class="sticky-column" style="min-width:180px;left:0;">Вид контроля</th>' +
-  COLUMN_STRUCTURE.map(c => `<th class="${c.type==='module'?'col-module':''}${c.type==='total'?'col-total':''}">${c.title}</th>`).join('') +
+  VISIBLE_COLS.map(c => `<th class="${c.type==='module'?'col-module':''}${c.type==='total'?'col-total':''}">${c.title}</th>`).join('') +
   '</tr>';
 
 // одна строка с баллами студента (горизонтальная)
 document.getElementById('grade-body').innerHTML = '<tr>' +
   '<td class="sticky-column fw-semibold" style="min-width:180px;left:0;">Балл</td>' +
-  COLUMN_STRUCTURE.map(c => {
+  VISIBLE_COLS.map(c => {
     const cellKey = SID + '_' + c.id;
     const g = GRADES[cellKey] || { value: '—' };
     const hasThread = !!getCommentByCell(cellKey);

@@ -64,21 +64,22 @@ const STUDENTS = [
 //        | 'commission' (Комиссия) | 'score' (Оценка балл) | 'grade' (Оценка)
 // position: куда относится — 'before1' (до 1 модуля), 'before2', 'before3'
 // sumInto: в какой модуль суммируется (1|2|3|null), null = не суммируется
+// hidden: true → столбец скрыт от студентов (виден только преподавателю)
 const COLUMN_STRUCTURE = [
     // обязательные модули
-    { id: 'm1',  title: '1 модуль',      type: 'module',      position: null, sumInto: null },
-    { id: 'm2',  title: '2 модуль',      type: 'module',      position: null, sumInto: null },
-    { id: 'm3',  title: '3 модуль',      type: 'module',      position: null, sumInto: null },
+    { id: 'm1',  title: '1 модуль',      type: 'module',      position: null, sumInto: null, hidden: false },
+    { id: 'm2',  title: '2 модуль',      type: 'module',      position: null, sumInto: null, hidden: false },
+    { id: 'm3',  title: '3 модуль',      type: 'module',      position: null, sumInto: null, hidden: false },
 
     // итоги и экзамены
-    { id: 't1',  title: 'Итоги*',        type: 'total',       position: null, sumInto: null },
-    { id: 'ex',  title: 'Экзамен',       type: 'exam',        position: null, sumInto: null },
-    { id: 'rt',  title: 'Пересдача',     type: 'retake',      position: null, sumInto: null },
-    { id: 'cm',  title: 'Комиссия',      type: 'commission',  position: null, sumInto: null },
+    { id: 't1',  title: 'Итоги*',        type: 'total',       position: null, sumInto: null, hidden: false },
+    { id: 'ex',  title: 'Экзамен',       type: 'exam',        position: null, sumInto: null, hidden: false },
+    { id: 'rt',  title: 'Пересдача',     type: 'retake',      position: null, sumInto: null, hidden: true  },
+    { id: 'cm',  title: 'Комиссия',      type: 'commission',  position: null, sumInto: null, hidden: true  },
 
     // финальные оценки
-    { id: 'sc',  title: 'Оценка (балл)', type: 'score',       position: null, sumInto: null },
-    { id: 'gr',  title: 'Оценка',        type: 'grade',       position: null, sumInto: null },
+    { id: 'sc',  title: 'Оценка (балл)', type: 'score',       position: null, sumInto: null, hidden: false },
+    { id: 'gr',  title: 'Оценка',        type: 'grade',       position: null, sumInto: null, hidden: false },
 ];
 
 // ----- Оценки студентов -----
@@ -213,6 +214,11 @@ function setTheme(t) {
 function toggleTheme() {
     setTheme(getTheme() === 'dark' ? 'light' : 'dark');
 }
+
+/* Роль текущего пользователя — храним в sessionStorage, чтобы общие страницы
+   (уведомления) знали, кто зашёл, и не показывали чужой интерфейс. */
+function saveRole(role) { sessionStorage.setItem('modulus-role', role); }
+function savedRole() { return sessionStorage.getItem('modulus-role') || 'teacher'; }
 // применить как можно раньше — вызывается в <head> см. ниже initThemeEarly()
 
 /* =========================================================
@@ -269,7 +275,7 @@ function renderHeader() {
             <button class="btn d-flex align-items-center gap-2 p-1" data-bs-toggle="dropdown">
               <span class="avatar">${user.avatar}</span>
               <span class="text-start d-none d-md-block lh-1">
-                <span class="d-block fw-semibold" style="font-size:.9rem;">${user.name}</span>
+                <span class="d-block fw-semibold user-name" style="font-size:.9rem;">${user.name}</span>
                 ${roleBadge}
               </span>
             </button>
