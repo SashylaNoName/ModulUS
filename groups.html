@@ -105,22 +105,21 @@ function renderGroups() {
   grid.innerHTML = list.map((g, i) => {
     const subj = getSubject(g.subjectId);
     return `<div class="col-xl-4 col-lg-6 col-md-6" data-reveal data-delay="${(i%3)+1}">
-      <a href="gradebook.html?group=${g.id}" class="group-card">
+      <div class="group-card" onclick="location.href='gradebook.html?group=${g.id}'">
         <div class="d-flex justify-content-between align-items-start mb-2">
           <span class="badge ${g.level==='Магистратура'?'badge-role-teacher':'badge-role-student'}">${g.level}</span>
           <span class="badge badge-group"><i class="bi bi-calendar me-1"></i>${g.year}</span>
         </div>
         <div class="group-name">${g.name}</div>
         <div class="group-meta small mb-3">${subj.name}</div>
-        <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center justify-content-between mb-3">
           <span class="group-meta small"><i class="bi bi-people me-1"></i>${g.students} студ.</span>
-          <span class="text-gradient fw-semibold small">Открыть журнал →</span>
         </div>
-      </a>
-      <div class="d-flex gap-2 mt-2">
-        <a href="group-form.html?id=${g.id}" class="btn btn-light btn-sm flex-grow-1"><i class="bi bi-pencil me-1"></i> Редактировать</a>
-        <a href="group-members.html?group=${g.id}" class="btn btn-light btn-sm" title="Студенты"><i class="bi bi-people"></i></a>
-        <button class="btn btn-light btn-sm text-danger" title="Удалить" onclick="askDelete(${g.id}, '${g.name}')"><i class="bi bi-trash"></i></button>
+        <div class="d-flex gap-2" onclick="event.stopPropagation()">
+          <a href="group-form.html?id=${g.id}" class="btn btn-light btn-sm flex-grow-1"><i class="bi bi-pencil me-1"></i> Редактировать</a>
+          <a href="group-members.html?group=${g.id}" class="btn btn-light btn-sm" title="Студенты"><i class="bi bi-people"></i></a>
+          <button class="btn btn-light btn-sm text-danger" title="Удалить" onclick="askDelete(${g.id}, '${g.name}')"><i class="bi bi-trash"></i></button>
+        </div>
       </div>
     </div>`;
   }).join('');

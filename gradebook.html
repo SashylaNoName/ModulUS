@@ -27,6 +27,7 @@
           <button class="btn btn-outline-primary" onclick="openSumSettings()"><i class="bi bi-calculator"></i> Суммирование</button>
           <button class="btn btn-outline-primary" onclick="openExport()"><i class="bi bi-download"></i> Экспорт</button>
           <button class="btn btn-outline-primary" onclick="openImport()"><i class="bi bi-upload"></i> Импорт</button>
+          <button class="btn btn-outline-primary" onclick="autoWidth()"><i class="bi bi-arrows-angle-expand"></i> Авто-ширина</button>
           <button class="btn btn-primary" onclick="openAddCol()"><i class="bi bi-plus-lg"></i> Столбец</button>
         </div>
       </div>
@@ -128,16 +129,21 @@
 </div></div></div>
 
 <!-- ===== Комментарий ===== -->
-<div class="modal fade" id="commentModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-  <div class="modal-header"><h5 class="modal-title">Комментарий</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<div class="modal fade" id="commentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title"><i class="bi bi-chat-dots text-gradient"></i> Диалог по оценке</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
   <div class="modal-body">
     <div class="small mb-2" style="color:var(--text-muted);" id="comment-context"></div>
-    <div id="comment-thread" class="mb-3"></div>
-    <label class="form-label">Ваш комментарий</label>
-    <textarea class="form-control" rows="3" id="comment-text" placeholder="Напишите студенту..."></textarea>
+    <div id="comment-thread" class="mb-3" style="max-height:320px;overflow:auto;"></div>
+    <div class="border-top pt-3">
+      <label class="form-label">Ваше сообщение</label>
+      <textarea class="form-control mb-2" rows="2" id="comment-text" placeholder="Напишите студенту..."></textarea>
+      <div class="d-flex gap-2">
+        <button class="btn btn-light" onclick="demoAction('прикрепить файл')" title="Прикрепить файл"><i class="bi bi-paperclip"></i> Файл</button>
+        <button class="btn btn-light" onclick="demoAction('прикрепить фото')" title="Прикрепить фото"><i class="bi bi-image"></i> Фото</button>
+        <button class="btn btn-primary ms-auto" onclick="sendComment()"><i class="bi bi-send"></i> Отправить</button>
+      </div>
+    </div>
   </div>
-  <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Закрыть</button>
-    <button class="btn btn-primary" onclick="sendComment()">Отправить</button></div>
 </div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -195,13 +201,7 @@ function openComment(cellKey) {
   const student = STUDENTS.find(s => s.id === Number(sid));
   const col = COLUMN_STRUCTURE.find(c => c.id === cid);
   document.getElementById('comment-context').innerHTML = `<b>${student.name}</b> · столбец <b>${col.title}</b>`;
-  const thread = getCommentByCell(cellKey);
-  const wrap = document.getElementById('comment-thread');
-  wrap.innerHTML = !thread ? '<p class="small" style="color:var(--text-muted);">Комментариев пока нет.</p>'
-    : '<div class="comment-thread">' + thread.thread.map(m => `<div class="comment-bubble ${m.author==='teacher'?'teacher':''}">
-        <div class="d-flex justify-content-between"><strong class="small">${m.name}</strong>
-        <span style="color:var(--text-soft);font-size:.7rem;">${m.time}</span></div>
-        <div class="small">${m.text}</div></div>`).join('') + '</div>';
+  document.getElementById('comment-thread').innerHTML = renderThread(cellKey);
   document.getElementById('comment-text').value = '';
   new bootstrap.Modal(document.getElementById('commentModal')).show();
 }
@@ -239,7 +239,71 @@ function confirmSum() {
 function openExport() { new bootstrap.Modal(document.getElementById('exportModal')).show(); }
 function openImport() { new bootstrap.Modal(document.getElementById('importModal')).show(); }
 
+/* ===== Изменение ширины столбцов ===== */
+function initResizable() {
+  const table = document.getElementById('grade-table');
+  const ths = table.querySelectorAll('thead th');
+  // измерим «естественные» ширины ДО включения fixed-layout
+  const natural = [...ths].map(th => Math.max(th.getBoundingClientRect().width, 80));
+  table.classList.add('resizable');   // включает table-layout: fixed
+  const saved = JSON.parse(localStorage.getItem('modulus-col-widths') || '{}');
+  ths.forEach((th, i) => {
+    // приоритет: сохранённая > естественная
+    th.style.width = saved[i] || (natural[i] + 'px');
+    th.style.position = 'relative';
+    if (!th.querySelector('.col-resizer')) {
+      const res = document.createElement('div');
+      res.className = 'col-resizer';
+      th.appendChild(res);
+      res.addEventListener('mousedown', (e) => startResize(e, th, i));
+    }
+  });
+}
+function startResize(e, th, idx) {
+  e.preventDefault();
+  e.stopPropagation();
+  const resizer = th.querySelector('.col-resizer');
+  resizer.classList.add('active');
+  const startX = e.clientX;
+  const startW = th.getBoundingClientRect().width;
+  const onMove = (ev) => {
+    const w = Math.max(60, startW + (ev.clientX - startX));
+    th.style.width = w + 'px';
+  };
+  const onUp = () => {
+    resizer.classList.remove('active');
+    // сохранить
+    const saved = JSON.parse(localStorage.getItem('modulus-col-widths') || '{}');
+    saved[idx] = th.style.width;
+    localStorage.setItem('modulus-col-widths', JSON.stringify(saved));
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+function autoWidth() {
+  // авто-подбор по содержимому: подгоняем каждую колонку под самый длинный текст
+  const table = document.getElementById('grade-table');
+  localStorage.removeItem('modulus-col-widths');
+  const ths = table.querySelectorAll('thead th');
+  const rows = table.querySelectorAll('tbody tr');
+  ths.forEach((th, ci) => {
+    let max = 0;
+    // измерим заголовок
+    const tmp = th.getBoundingClientRect().width;
+    max = Math.max(max, tmp);
+    rows.forEach(r => {
+      const cell = r.children[ci];
+      if (cell) max = Math.max(max, cell.getBoundingClientRect().width);
+    });
+    th.style.width = Math.min(Math.max(max + 24, 70), 320) + 'px';
+  });
+  toast('Ширина столбцов подобрана автоматически', 'success');
+}
+
 renderTable();
+initResizable();
 initPage();
 </script>
 </body>

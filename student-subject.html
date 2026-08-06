@@ -23,53 +23,51 @@
         <span class="small" style="color:var(--text-muted);">Иванова М. П. · Группа ПИб-231</span></div>
       </div>
 
-      <div class="row g-3 mb-4">
-        <div class="col-md-3 col-6" data-reveal data-delay="1"><div class="glass p-3 text-center h-100">
-          <div class="fs-3 fw-bold text-gradient" id="m1">23</div><small style="color:var(--text-muted);">1 модуль</small></div></div>
-        <div class="col-md-3 col-6" data-reveal data-delay="2"><div class="glass p-3 text-center h-100">
-          <div class="fs-3 fw-bold text-gradient" id="m2">25</div><small style="color:var(--text-muted);">2 модуль</small></div></div>
-        <div class="col-md-3 col-6" data-reveal data-delay="3"><div class="glass p-3 text-center h-100">
-          <div class="fs-3 fw-bold text-gradient" id="m3">20</div><small style="color:var(--text-muted);">3 модуль</small></div></div>
-        <div class="col-md-3 col-6" data-reveal data-delay="4"><div class="glass p-3 text-center h-100" style="background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(245,158,11,.05));">
-          <div class="fs-3 fw-bold" style="color:#b45309;" id="total">отл</div><small style="color:var(--text-muted);">Итог</small></div></div>
+      <!-- горизонтальная таблица баллов -->
+      <div class="card mb-4" data-reveal>
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center" style="border-color:var(--border);">
+          <strong>Мои баллы</strong>
+          <span class="small" style="color:var(--text-muted);">Кликните по ячейке, чтобы открыть диалог</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-bordered grade-table mb-0 align-middle">
+              <thead id="grade-head"></thead>
+              <tbody id="grade-body"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      <div class="row g-4">
-        <div class="col-lg-7" data-reveal="left">
-          <div class="card h-100">
-            <div class="card-header bg-transparent" style="border-color:var(--border);"><strong>Мои баллы</strong></div>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-sm align-middle mb-0 grade-table">
-                  <thead><tr><th>Столбец</th><th class="text-center">Балл</th><th class="text-center">💬</th></tr></thead>
-                  <tbody id="grades-body"></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-5" data-reveal="right">
-          <div class="card h-100">
-            <div class="card-header bg-transparent" style="border-color:var(--border);"><strong>Комментарии преподавателя</strong></div>
-            <div class="card-body" id="threads"></div>
-          </div>
-        </div>
+      <!-- список активных диалогов -->
+      <div class="card" data-reveal>
+        <div class="card-header bg-transparent" style="border-color:var(--border);"><strong>Диалоги с преподавателем</strong></div>
+        <div class="card-body" id="threads"></div>
       </div>
 
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="replyModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-  <div class="modal-header"><h5 class="modal-title">Ответить преподавателю</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<!-- ===== Чат к полю ===== -->
+<div class="modal fade" id="chatModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title"><i class="bi bi-chat-dots text-gradient"></i> Диалог по оценке</h5>
+    <button class="btn-close" data-bs-dismiss="modal"></button></div>
   <div class="modal-body">
-    <div class="small mb-2" style="color:var(--text-muted);" id="reply-context"></div>
-    <div id="reply-thread" class="mb-3"></div>
-    <label class="form-label">Ваш ответ</label>
-    <textarea class="form-control" rows="3" id="reply-text" placeholder="Напишите ответ..."></textarea>
+    <div class="small mb-2" style="color:var(--text-muted);" id="chat-context"></div>
+    <div id="chat-thread" class="mb-3" style="max-height:320px;overflow:auto;"></div>
+    <!-- форма отправки -->
+    <div class="border-top pt-3">
+      <textarea class="form-control mb-2" rows="2" id="chat-text" placeholder="Напишите сообщение..."></textarea>
+      <div class="d-flex gap-2">
+        <button class="btn btn-light" onclick="demoAction('прикрепить файл')" title="Прикрепить файл">
+          <i class="bi bi-paperclip"></i> Файл</button>
+        <button class="btn btn-light" onclick="demoAction('прикрепить фото')" title="Прикрепить фото">
+          <i class="bi bi-image"></i> Фото</button>
+        <button class="btn btn-primary ms-auto" onclick="sendChat()"><i class="bi bi-send"></i> Отправить</button>
+      </div>
+    </div>
   </div>
-  <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Отмена</button>
-    <button class="btn btn-primary" onclick="sendReply()">Отправить</button></div>
 </div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -85,48 +83,60 @@ const subjId = Number(new URLSearchParams(location.search).get('subject') || 1);
 const subj = getSubject(subjId);
 document.getElementById('subj-title').textContent = subj.name;
 
-const SID = 1;
-document.getElementById('grades-body').innerHTML = COLUMN_STRUCTURE.map(c => {
-  const g = GRADES[SID + '_' + c.id] || { value: '—' };
-  const thread = getCommentByCell(SID + '_' + c.id);
-  let cls = ''; if (c.type==='module') cls='col-module'; if (c.type==='total') cls='col-total';
-  return `<tr>
-    <td class="${cls}">${c.title}</td>
-    <td class="cell-grade ${cls}"><b>${g.value || '—'}</b></td>
-    <td class="text-center">${thread
-      ? `<button class="btn btn-sm btn-link p-0" style="color:var(--warning);" onclick="openReply('${SID}_${c.id}')"><i class="bi bi-chat-dots-fill"></i> <span class="small">${thread.thread.length}</span></button>`
-      : '<span style="color:var(--text-soft);">—</span>'}</td>
-  </tr>`;
-}).join('');
+const SID = 1; // текущий студент
 
+// заголовки таблицы
+document.getElementById('grade-head').innerHTML =
+  '<tr><th class="sticky-column" style="min-width:180px;left:0;">Вид контроля</th>' +
+  COLUMN_STRUCTURE.map(c => `<th class="${c.type==='module'?'col-module':''}${c.type==='total'?'col-total':''}">${c.title}</th>`).join('') +
+  '</tr>';
+
+// одна строка с баллами студента (горизонтальная)
+document.getElementById('grade-body').innerHTML = '<tr>' +
+  '<td class="sticky-column fw-semibold" style="min-width:180px;left:0;">Балл</td>' +
+  COLUMN_STRUCTURE.map(c => {
+    const cellKey = SID + '_' + c.id;
+    const g = GRADES[cellKey] || { value: '—' };
+    const hasThread = !!getCommentByCell(cellKey);
+    const cls = c.type==='module'?'col-module':c.type==='total'?'col-total':'';
+    const val = g.value || '—';
+    return `<td class="cell-grade cursor-pointer ${cls}" onclick="openChat('${cellKey}')">
+      <div class="d-flex align-items-center justify-content-center gap-1">
+        <b>${val}</b>
+        ${hasThread ? '<i class="bi bi-chat-dots-fill" style="color:var(--brand-1);font-size:.8rem;"></i>' : '<i class="bi bi-chat" style="color:var(--text-soft);font-size:.8rem;"></i>'}
+      </div>
+    </td>`;
+  }).join('') + '</tr>';
+
+// список диалогов
 const myComments = COMMENTS.filter(c => c.cellKey.startsWith(SID + '_'));
 document.getElementById('threads').innerHTML = myComments.length
   ? myComments.map(c => {
       const col = COLUMN_STRUCTURE.find(x => x.id === c.cellKey.split('_')[1]);
       return `<div class="mb-3">
         <div class="small mb-1" style="color:var(--text-muted);">Столбец: <b>${col.title}</b></div>
-        <div class="comment-thread">${c.thread.map(m => `<div class="comment-bubble ${m.author==='teacher'?'teacher':''}">
-          <strong class="small">${m.name}</strong> <span style="color:var(--text-soft);font-size:.7rem;">${m.time}</span>
-          <div class="small">${m.text}</div></div>`).join('')}</div>
+        ${renderThread(c.cellKey)}
         <button class="btn btn-sm btn-outline-primary mt-1" onclick="openReply('${c.cellKey}')"><i class="bi bi-reply"></i> Ответить</button>
       </div>`;
     }).join('')
-  : '<div class="empty-state"><div class="empty-icon"><i class="bi bi-chat"></i></div><p class="mb-0">Комментариев пока нет</p></div>';
+  : '<div class="empty-state"><div class="empty-icon"><i class="bi bi-chat"></i></div><p class="mb-0">Диалогов пока нет</p></div>';
 
-function openReply(cellKey) {
+// чат
+let currentChat = null;
+function openChat(cellKey) {
+  currentChat = cellKey;
   const col = COLUMN_STRUCTURE.find(x => x.id === cellKey.split('_')[1]);
-  const thread = getCommentByCell(cellKey);
-  document.getElementById('reply-context').textContent = 'Столбец: ' + col.title;
-  document.getElementById('reply-thread').innerHTML = thread
-    ? '<div class="comment-thread">' + thread.thread.map(m => `<div class="comment-bubble ${m.author==='teacher'?'teacher':''}">
-        <strong class="small">${m.name}</strong><div class="small">${m.text}</div></div>`).join('') + '</div>' : '';
-  document.getElementById('reply-text').value = '';
-  new bootstrap.Modal(document.getElementById('replyModal')).show();
+  const g = GRADES[cellKey] || {};
+  document.getElementById('chat-context').innerHTML = `Столбец: <b>${col.title}</b> · Ваш балл: <b>${g.value || '—'}</b>`;
+  document.getElementById('chat-thread').innerHTML = renderThread(cellKey);
+  document.getElementById('chat-text').value = '';
+  new bootstrap.Modal(document.getElementById('chatModal')).show();
 }
-function sendReply() {
-  if (!document.getElementById('reply-text').value.trim()) return;
-  toast('Ответ отправлен преподавателю (демо)', 'success');
-  bootstrap.Modal.getInstance(document.getElementById('replyModal')).hide();
+function openReply(cellKey) { openChat(cellKey); }
+function sendChat() {
+  if (!document.getElementById('chat-text').value.trim()) return;
+  toast('Сообщение отправлено преподавателю (демо)', 'success');
+  bootstrap.Modal.getInstance(document.getElementById('chatModal')).hide();
 }
 initPage();
 </script>

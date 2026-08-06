@@ -50,11 +50,13 @@ document.getElementById('subj-accordion').innerHTML = SUBJECTS.map((s, i) => {
       <div class="accordion-body p-0">
         ${groups.length ? `<table class="table table-pretty align-middle mb-0">
           <thead><tr><th>Группа</th><th>Уровень</th><th>Студентов</th><th class="text-end">Действие</th></tr></thead>
-          <tbody>${groups.map(g => `<tr>
-            <td><a href="gradebook.html?group=${g.id}" class="text-decoration-none">${g.name}</a></td>
+          <tbody>${groups.map(g => `<tr class="cursor-pointer" onclick="location.href='gradebook.html?group=${g.id}'">
+            <td>${g.name}</td>
             <td><span class="badge ${g.level==='Магистратура'?'badge-role-teacher':'badge-role-student'}">${g.level}</span></td>
             <td>${g.students}</td>
-            <td class="text-end"><a href="gradebook.html?group=${g.id}" class="btn btn-sm btn-outline-primary">Журнал</a></td>
+            <td class="text-end" onclick="event.stopPropagation()">
+              <a href="group-form.html?id=${g.id}" class="btn btn-sm btn-light" title="Редактировать"><i class="bi bi-pencil"></i></a>
+            </td>
           </tr>`).join('')}</tbody>
         </table>` : '<div class="empty-state"><p class="mb-0" style="color:var(--text-muted);">Нет групп по этому предмету</p></div>'}
       </div>

@@ -28,7 +28,9 @@
             <table class="table table-bordered align-middle mb-0">
               <thead class="table-light">
                 <tr><th>Предмет</th><th class="text-center">1 модуль</th><th class="text-center">2 модуль</th>
-                <th class="text-center">3 модуль</th><th class="text-center">Итог</th><th class="text-center">💬</th></tr>
+                <th class="text-center">3 модуль</th><th class="text-center">Итоги*</th>
+                <th class="text-center">Экзамен</th><th class="text-center">Пересдача</th><th class="text-center">Комиссия</th>
+                <th class="text-center">Оценка (балл)</th><th class="text-center">Оценка</th><th class="text-center">💬</th></tr>
               </thead>
               <tbody id="overview"></tbody>
             </table>
@@ -50,17 +52,21 @@ mountHeader();
 document.getElementById('app-sidebar').innerHTML = renderStudentSidebar('grades');
 
 const summary = [
-  { name:'Программирование',  m1:23, m2:25, m3:20, total:'отл',   comments:2 },
-  { name:'Высшая математика', m1:18, m2:17, m3:19, total:'хор',   comments:0 },
-  { name:'Базы данных',       m1:25, m2:26, m3:27, total:'отл',   comments:1 },
-  { name:'Английский язык',   m1:'зачёт', m2:'зачёт', m3:'зачёт', total:'зачёт', comments:0 },
-  { name:'Физика',            m1:12, m2:13, m3:14, total:'удовл', comments:1 },
+  { name:'Программирование',  m1:23, m2:25, m3:20, total:68, exam:24, retake:'—', commission:'—', score:92, grade:'отл',   comments:2 },
+  { name:'Высшая математика', m1:18, m2:17, m3:19, total:54, exam:18, retake:'—', commission:'—', score:72, grade:'хор',   comments:0 },
+  { name:'Базы данных',       m1:25, m2:26, m3:27, total:78, exam:17, retake:'—', commission:'—', score:95, grade:'отл',   comments:1 },
+  { name:'Английский язык',   m1:'зачёт', m2:'зачёт', m3:'зачёт', total:'зачёт', exam:'—', retake:'—', commission:'—', score:'—', grade:'зачёт', comments:0 },
+  { name:'Физика',            m1:12, m2:10, m3:11, total:33, exam:15, retake:22, commission:'—', score:55, grade:'удовл', comments:1 },
 ];
+const gradeBadge = g => g==='отл'?'badge-role-student':g==='удовл'?'badge-role-teacher':'badge-group';
 document.getElementById('overview').innerHTML = summary.map(s => `<tr>
   <td><a href="student-subject.html?subject=1" class="fw-semibold">${s.name}</a></td>
   <td class="text-center">${s.m1}</td><td class="text-center">${s.m2}</td><td class="text-center">${s.m3}</td>
-  <td class="text-center"><span class="badge ${s.total==='отл'?'badge-role-student':s.total==='удовл'?'badge-role-teacher':'badge-group'}">${s.total}</span></td>
-  <td class="text-center">${s.comments ? `<span class="badge" style="background:rgba(245,158,11,.18);color:#b45309;">${s.comments} 💬</span>` : '<span style="color:var(--text-soft);">—</span>'}</td>
+  <td class="text-center">${s.total}</td>
+  <td class="text-center">${s.exam}</td><td class="text-center">${s.retake}</td><td class="text-center">${s.commission}</td>
+  <td class="text-center"><b>${s.score}</b></td>
+  <td class="text-center"><span class="badge ${gradeBadge(s.grade)}">${s.grade}</span></td>
+  <td class="text-center">${s.comments ? `<span class="badge" style="background:rgba(37,99,235,.15);color:#2563eb;">${s.comments} 💬</span>` : '<span style="color:var(--text-soft);">—</span>'}</td>
 </tr>`).join('');
 initPage();
 </script>

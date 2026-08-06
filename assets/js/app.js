@@ -59,103 +59,92 @@ const STUDENTS = [
 ];
 
 // ----- Структура столбцов таблицы -----
-// type: 'intermediate' (промежуточный) | 'module' (1/2/3 модуль) | 'total'
+// type: 'intermediate' (промежуточный) | 'module' (1/2/3 модуль)
+//        | 'total' (Итоги) | 'exam' (Экзамен) | 'retake' (Пересдача)
+//        | 'commission' (Комиссия) | 'score' (Оценка балл) | 'grade' (Оценка)
 // position: куда относится — 'before1' (до 1 модуля), 'before2', 'before3'
 // sumInto: в какой модуль суммируется (1|2|3|null), null = не суммируется
 const COLUMN_STRUCTURE = [
-    // до 1 модуля
-    { id: 'c1', title: 'ЛР 1',          type: 'intermediate', position: 'before1', sumInto: 1 },
-    { id: 'c2', title: 'ЛР 2',          type: 'intermediate', position: 'before1', sumInto: 1 },
-    { id: 'c3', title: 'Контрольная 1', type: 'intermediate', position: 'before1', sumInto: null },
-    { id: 'm1', title: '1 модуль',      type: 'module',       position: null,     sumInto: null },
+    // обязательные модули
+    { id: 'm1',  title: '1 модуль',      type: 'module',      position: null, sumInto: null },
+    { id: 'm2',  title: '2 модуль',      type: 'module',      position: null, sumInto: null },
+    { id: 'm3',  title: '3 модуль',      type: 'module',      position: null, sumInto: null },
 
-    // до 2 модуля
-    { id: 'c4', title: 'ЛР 3',          type: 'intermediate', position: 'before2', sumInto: 2 },
-    { id: 'c5', title: 'Посещение',     type: 'intermediate', position: 'before2', sumInto: null },
-    { id: 'm2', title: '2 модуль',      type: 'module',       position: null,     sumInto: null },
+    // итоги и экзамены
+    { id: 't1',  title: 'Итоги*',        type: 'total',       position: null, sumInto: null },
+    { id: 'ex',  title: 'Экзамен',       type: 'exam',        position: null, sumInto: null },
+    { id: 'rt',  title: 'Пересдача',     type: 'retake',      position: null, sumInto: null },
+    { id: 'cm',  title: 'Комиссия',      type: 'commission',  position: null, sumInto: null },
 
-    // до 3 модуля
-    { id: 'c6', title: 'ЛР 4',          type: 'intermediate', position: 'before3', sumInto: 3 },
-    { id: 'c7', title: 'Проект',        type: 'intermediate', position: 'before3', sumInto: 3 },
-    { id: 'm3', title: '3 модуль',      type: 'module',       position: null,     sumInto: null },
-
-    // итог
-    { id: 't1', title: 'Итог',          type: 'total',        position: null,     sumInto: null },
+    // финальные оценки
+    { id: 'sc',  title: 'Оценка (балл)', type: 'score',       position: null, sumInto: null },
+    { id: 'gr',  title: 'Оценка',        type: 'grade',       position: null, sumInto: null },
 ];
 
 // ----- Оценки студентов -----
 // ключ = studentId + '_' + columnId, значение = { value, commentId }
 const GRADES = {
-    '1_c1': { value: '5',   comment: 1 },
-    '1_c2': { value: '4',   comment: null },
-    '1_c3': { value: 'зачёт', comment: null },
-    '1_m1': { value: '23',  comment: null },
-    '1_c4': { value: '5',   comment: null },
-    '1_c5': { value: 'присут.', comment: null },
-    '1_m2': { value: '25',  comment: null },
-    '1_c6': { value: '4',   comment: null },
-    '1_c7': { value: '-',   comment: 2 },
-    '1_m3': { value: '20',  comment: null },
-    '1_t1': { value: 'отл', comment: null },
+    // Алексеев Артём (id 1)
+    '1_m1': { value: '23', comment: 1 },
+    '1_m2': { value: '25', comment: null },
+    '1_m3': { value: '20', comment: null },
+    '1_t1': { value: '68', comment: null },
+    '1_ex': { value: '24', comment: null },
+    '1_rt': { value: '',   comment: null },
+    '1_cm': { value: '',   comment: null },
+    '1_sc': { value: '92', comment: null },
+    '1_gr': { value: 'отл', comment: null },
 
-    '2_c1': { value: '4',   comment: null },
-    '2_c2': { value: '4',   comment: null },
-    '2_c3': { value: 'зачёт', comment: null },
-    '2_m1': { value: '20',  comment: null },
-    '2_c4': { value: '3',   comment: null },
-    '2_c5': { value: 'присут.', comment: null },
-    '2_m2': { value: '18',  comment: null },
-    '2_c6': { value: '4',   comment: null },
-    '2_c7': { value: '4',   comment: null },
-    '2_m3': { value: '22',  comment: null },
-    '2_t1': { value: 'хор', comment: null },
+    // Борисова Анна (id 2)
+    '2_m1': { value: '20', comment: null },
+    '2_m2': { value: '18', comment: null },
+    '2_m3': { value: '22', comment: null },
+    '2_t1': { value: '60', comment: null },
+    '2_ex': { value: '18', comment: null },
+    '2_rt': { value: '',   comment: null },
+    '2_cm': { value: '',   comment: null },
+    '2_sc': { value: '78', comment: null },
+    '2_gr': { value: 'хор', comment: null },
 
-    '3_c1': { value: '5',   comment: null },
-    '3_c2': { value: '5',   comment: null },
-    '3_c3': { value: 'зачёт', comment: null },
-    '3_m1': { value: '25',  comment: null },
-    '3_c4': { value: '5',   comment: null },
-    '3_c5': { value: 'присут.', comment: null },
-    '3_m2': { value: '26',  comment: null },
-    '3_c6': { value: '5',   comment: null },
-    '3_c7': { value: '5',   comment: null },
-    '3_m3': { value: '27',  comment: null },
-    '3_t1': { value: 'отл', comment: null },
+    // Волков Иван (id 3)
+    '3_m1': { value: '25', comment: null },
+    '3_m2': { value: '26', comment: null },
+    '3_m3': { value: '27', comment: null },
+    '3_t1': { value: '78', comment: null },
+    '3_ex': { value: '17', comment: null },
+    '3_rt': { value: '',   comment: null },
+    '3_cm': { value: '',   comment: null },
+    '3_sc': { value: '95', comment: null },
+    '3_gr': { value: 'отл', comment: null },
 
-    '4_c1': { value: '3',   comment: 3 },
-    '4_c2': { value: '-',   comment: null },
-    '4_c3': { value: 'незачёт', comment: null },
-    '4_m1': { value: '12',  comment: null },
-    '4_c4': { value: '3',   comment: null },
-    '4_c5': { value: 'отсутств.', comment: null },
-    '4_m2': { value: '10',  comment: null },
-    '4_c6': { value: '3',   comment: null },
-    '4_c7': { value: '-',   comment: null },
-    '4_m3': { value: '11',  comment: null },
-    '4_t1': { value: 'удовл', comment: null },
+    // Григорьева Ольга (id 4)
+    '4_m1': { value: '12', comment: 2 },
+    '4_m2': { value: '10', comment: null },
+    '4_m3': { value: '11', comment: null },
+    '4_t1': { value: '33', comment: null },
+    '4_ex': { value: '15', comment: null },
+    '4_rt': { value: '22', comment: null },
+    '4_cm': { value: '',   comment: null },
+    '4_sc': { value: '55', comment: null },
+    '4_gr': { value: 'удовл', comment: null },
 };
 
 // ----- Комментарии (диалог преподаватель ↔ студент) -----
+// Сообщение может содержать: text, image (url фото), file (имя файла)
 const COMMENTS = [
     {
-        id: 1, cellKey: '1_c1',
+        id: 1, cellKey: '1_m1',
         thread: [
-            { author: 'teacher', name: 'Иванова М. П.', text: 'Отличная работа! Разобрался с рекурсией лучше всех.', time: '12 окт, 10:30' },
-            { author: 'student', name: 'Алексеев Артём', text: 'Спасибо! Могу помочь одногруппникам.', time: '12 окт, 14:15' },
+            { author: 'teacher', name: 'Иванова М. П.', text: 'Отличная работа по первому модулю! Разобрался с рекурсией лучше всех.', time: '12 окт, 10:30' },
+            { author: 'student', name: 'Алексеев Артём', text: 'Спасибо! Прикрепляю решение доп. задачи.', time: '12 окт, 14:15', image: 'https://placehold.co/300x200/2563eb/ffffff?text=%D0%A0%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5' },
+            { author: 'teacher', name: 'Иванова М. П.', text: 'Методичка по теме — во вложении.', time: '12 окт, 15:02', file: 'metodichka_rekursia.pdf' },
         ],
     },
     {
-        id: 2, cellKey: '1_c7',
-        thread: [
-            { author: 'teacher', name: 'Иванова М. П.', text: 'Проект не сдан. До конца недели, пожалуйста.', time: '18 окт, 09:00' },
-        ],
-    },
-    {
-        id: 3, cellKey: '4_c1',
+        id: 2, cellKey: '4_m1',
         thread: [
             { author: 'teacher', name: 'Иванова М. П.', text: 'Много ошибок в коде. Подойдите на консультацию.', time: '11 окт, 16:20' },
             { author: 'student', name: 'Григорьева Ольга', text: 'Подойду в четверг на 2-й паре.', time: '11 окт, 18:45' },
-            { author: 'teacher', name: 'Иванова М. П.', text: 'Договорились.', time: '11 окт, 19:02' },
         ],
     },
 ];
@@ -183,6 +172,26 @@ function $all(sel, root = document) { return [...root.querySelectorAll(sel)]; }
 function getSubject(id) { return SUBJECTS.find(s => s.id === Number(id)); }
 function getGroup(id)   { return GROUPS.find(g => g.id === Number(id)); }
 function getCommentByCell(cellKey) { return COMMENTS.find(c => c.cellKey === cellKey); }
+
+/* Рендер одного сообщения чата: текст + (опц.) фото + (опц.) файл */
+function renderMessage(m) {
+    let body = `<div class="d-flex justify-content-between">
+        <strong class="small">${m.name}</strong>
+        <span style="color:var(--text-soft);font-size:.7rem;">${m.time||''}</span>
+    </div>`;
+    if (m.text) body += `<div class="small mt-1">${m.text}</div>`;
+    if (m.image) body += `<img src="${m.image}" alt="фото" class="img-fluid rounded mt-2" style="max-height:220px;cursor:pointer;" onclick="window.open('${m.image}','_blank')">`;
+    if (m.file)  body += `<a href="#" onclick="return false;" class="d-inline-flex align-items-center gap-2 mt-2 small" style="color:var(--brand-1);">
+        <i class="bi bi-paperclip"></i> ${m.file}</a>`;
+    return body;
+}
+/* Рендер всей ветки диалога по cellKey */
+function renderThread(cellKey) {
+    const t = getCommentByCell(cellKey);
+    if (!t) return '<p class="small" style="color:var(--text-muted);">Комментариев пока нет.</p>';
+    return '<div class="comment-thread">' + t.thread.map(m =>
+        `<div class="comment-bubble ${m.author==='teacher'?'teacher':''}">${renderMessage(m)}</div>`).join('') + '</div>';
+}
 
 // Инициалы из ФИО
 function initials(full) {
