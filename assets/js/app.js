@@ -262,7 +262,7 @@ function renderHeader() {
             <button class="icon-btn position-relative" data-bs-toggle="dropdown" title="Уведомления" aria-label="Уведомления">
               <i class="bi bi-bell"></i><span class="notif-dot"></span>
             </button>
-            <div class="dropdown-menu dropdown-menu-end p-0" style="width:360px;">
+            <div class="dropdown-menu dropdown-menu-end p-0" style="width:min(360px, calc(100vw - 1.5rem));max-width:min(360px, calc(100vw - 1.5rem));">
               <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                 <strong>Уведомления</strong>
                 <a href="notifications.html" class="small">Все</a>
