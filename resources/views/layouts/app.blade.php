@@ -39,7 +39,7 @@
                             <a href="{{ route('notifications.index') }}" class="small">Все</a>
                         </div>
                         @forelse($recentNotifs as $n)
-                            <a href="{{ route('notifications.index') }}" class="notif-item d-block text-decoration-none {{ $n->is_read ? '' : 'unread' }}" style="color:var(--text);">
+                            <a href="{{ $n->link ?: route('notifications.index') }}" class="notif-item d-block text-decoration-none {{ $n->is_read ? '' : 'unread' }}" style="color:var(--text);">
                                 <div class="d-flex gap-2">
                                     <span class="fs-5">{{ $n->icon }}</span>
                                     <div class="flex-grow-1">

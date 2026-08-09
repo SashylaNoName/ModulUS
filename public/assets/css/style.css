@@ -325,6 +325,14 @@ a.feature-card, a.feature-card:hover, a.feature-card * { color: inherit; }
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(37, 99, 235, .25);
 }
+/* role-pick НЕ реагирует на hover (только на выбор) */
+.role-pick:hover { transform: none; box-shadow: none; }
+
+/* На форме групп — без hover-эффектов на полях и блоках разбора */
+.group-form .form-control,
+.group-form .form-select,
+.group-form .text-gradient,
+.group-form label { transition: none !important; }
 
 /* ====== Поля ввода ====== */
 .form-control, .form-select {
@@ -563,10 +571,13 @@ a.feature-card, a.feature-card:hover, a.feature-card * { color: inherit; }
 [data-theme="dark"] .table-pretty tbody tr:nth-child(even),
 [data-theme="dark"] .table > tbody > tr,
 [data-theme="dark"] .table > tbody > tr:nth-child(even),
-[data-theme="dark"] .table-hover > tbody > tr:hover {
-    background: transparent !important;
+[data-theme="dark"] .table-hover > tbody > tr:hover,
+[data-theme="dark"] .grade-table tbody tr:hover,
+[data-theme="dark"] .grade-table tbody tr:hover td,
+[data-theme="dark"] .grade-table tbody tr,
+[data-theme="dark"] .grade-table tbody tr > td {
+    background: var(--bg-elevated) !important;
 }
-[data-theme="dark"] .grade-table tbody tr { background: var(--bg-elevated); }
 
 /* === Глобальный фикс тёмной темы: текст при hover остаётся светлым === */
 [data-theme="dark"] a:hover,

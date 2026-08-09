@@ -32,14 +32,19 @@ class CommentController extends Controller
             'file'     => $filePath,
         ]);
 
-        // уведомление второй стороне
+        // уведомление второй стороне + ссылка на обсуждение
         $recipientId = $user->isTeacher() ? $grade->user_id : $grade->group->user_id;
+        // ссылка: студенту — на предмет, преподавателю — на журнал
+        $link = $user->isTeacher()
+            ? route('student.subject.show', $grade->group, false)
+            : route('teacher.gradebook.show', $grade->group, false);
         Notification::create([
             'user_id' => $recipientId,
             'type'    => 'comment',
             'icon'    => '💬',
             'title'   => $user->isTeacher() ? 'Новый комментарий преподавателя' : 'Ответ студента',
             'text'    => 'По оценке «'.$grade->column->title.'» ('.$grade->group->subject->name.').',
+            'link'    => $link,
         ]);
 
         return back()->with('success', 'Сообщение отправлено.');

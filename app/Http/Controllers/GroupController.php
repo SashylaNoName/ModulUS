@@ -33,8 +33,10 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'       => ['required', 'string', 'max:30'],
+            'name'       => ['required', 'string', 'max:30', 'regex:/^[A-Za-zА-Яа-я]+[бмБМ]-\d{3}$/'],
             'subject_id' => ['required', 'exists:subjects,id'],
+        ], [
+            'name.regex' => 'Формат названия: специальность + б/м + год(2 цифры) + номер(1 цифра). Пример: ПИб-231.',
         ]);
         $parsed = Group::parseName($data['name']);
         $group = Group::create([
@@ -54,7 +56,7 @@ class GroupController extends Controller
             $this->addStudentsFromText($group, $request->students_manual);
         }
 
-        return redirect()->route('groups.index')->with('success', 'Группа создана.');
+        return redirect()->route('teacher.groups.index')->with('success', 'Группа создана.');
     }
 
     /** Форма редактирования */
@@ -70,12 +72,14 @@ class GroupController extends Controller
     {
         $this->authorizeGroup($group);
         $data = $request->validate([
-            'name'       => ['required', 'string', 'max:30'],
+            'name'       => ['required', 'string', 'max:30', 'regex:/^[A-Za-zА-Яа-я]+[бмБМ]-\d{3}$/'],
             'subject_id' => ['required', 'exists:subjects,id'],
+        ], [
+            'name.regex' => 'Формат названия: специальность + б/м + год(2 цифры) + номер(1 цифра). Пример: ПИб-231.',
         ]);
         $parsed = Group::parseName($data['name']);
         $group->update(array_merge($data, $parsed));
-        return redirect()->route('groups.index')->with('success', 'Группа обновлена.');
+        return redirect()->route('teacher.groups.index')->with('success', 'Группа обновлена.');
     }
 
     /** Удаление */
@@ -83,7 +87,7 @@ class GroupController extends Controller
     {
         $this->authorizeGroup($group);
         $group->delete();
-        return redirect()->route('groups.index')->with('success', 'Группа удалена.');
+        return redirect()->route('teacher.groups.index')->with('success', 'Группа удалена.');
     }
 
     /* ===== Хелперы ===== */

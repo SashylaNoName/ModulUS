@@ -30,6 +30,7 @@ class GradeController extends Controller
             'icon'    => '📊',
             'title'   => 'Поставлена оценка',
             'text'    => 'Получен балл «'.($data['value'] ?: '—').'» за «'.$column->title.'» ('.$group->subject->name.').',
+            'link'    => route('student.subject.show', $group, false),
         ]);
 
         return response()->json(['ok' => true, 'value' => $grade->value]);

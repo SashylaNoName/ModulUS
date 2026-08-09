@@ -13,7 +13,7 @@
     <div class="col-lg-8" data-reveal="left">
         <div class="card">
             <div class="card-body p-4">
-                <form method="POST" action="{{ $group ? route('teacher.groups.update', $group) : route('teacher.groups.store') }}">
+                <form method="POST" class="group-form" action="{{ $group ? route('teacher.groups.update', $group) : route('teacher.groups.store') }}">
                     @csrf @if($group) @method('PUT') @endif
                     <div class="row g-3">
                         <div class="col-md-6">

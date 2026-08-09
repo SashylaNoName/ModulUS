@@ -20,7 +20,8 @@
 <div class="card" data-reveal>
     <div class="card-body p-0">
         @forelse($items as $n)
-            <div class="notif-item d-flex gap-3 {{ $n->is_read?'':'unread' }}">
+            @php $tag = $n->link ? 'a' : 'div'; @endphp
+            <{{ $tag }} class="notif-item d-flex gap-3 {{ $n->is_read?'':'unread' }} text-decoration-none" style="color:var(--text);" @if($n->link) href="{{ $n->link }}" @endif>
                 <span class="fs-4">{{ $n->icon }}</span>
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between">
@@ -29,7 +30,7 @@
                     </div>
                     <div class="small mt-1" style="color:var(--text-muted);">{!! $n->text !!}</div>
                 </div>
-            </div>
+            </{{ $tag }}>
         @empty
             <div class="empty-state"><div class="empty-icon"><i class="bi bi-bell-slash"></i></div><p class="mb-0">Нет уведомлений</p></div>
         @endforelse

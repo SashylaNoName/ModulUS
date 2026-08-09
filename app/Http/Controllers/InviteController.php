@@ -28,6 +28,7 @@ class InviteController extends Controller
                 'icon'    => '👤',
                 'title'   => 'Новый студент в группе',
                 'text'    => '<b>'.e($user->name).'</b> присоединился к группе <b>'.e($group->name).'</b>.',
+                'link'    => route('teacher.gradebook.show', $group, false),
             ]);
 
             return redirect()->route('student.subject.show', $group)->with('success', 'Вы присоединились к группе.');

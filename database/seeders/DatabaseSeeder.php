@@ -106,10 +106,10 @@ class DatabaseSeeder extends Seeder
         Comment::create(['grade_id'=>$g4->id,'user_id'=>$teacher->id,'text'=>'Много ошибок. Подойдите на консультацию.']);
         Comment::create(['grade_id'=>$g4->id,'user_id'=>$students[3]->id,'text'=>'Подойду в четверг.']);
 
-        // ===== Уведомления =====
-        Notification::create(['user_id'=>$teacher->id,'type'=>'join','icon'=>'👤','title'=>'Новый студент','text'=>'<b>Кузнецов Павел</b> присоединился к <b>ПИб-231</b>.']);
-        Notification::create(['user_id'=>$teacher->id,'type'=>'reply','icon'=>'💬','title'=>'Ответ студента','text'=>'<b>Григорьева Ольга</b> ответила на комментарий.']);
-        Notification::create(['user_id'=>$students[0]->id,'type'=>'grade','icon'=>'📊','title'=>'Поставлена оценка','text'=>'Получен балл «92» за «Оценка (балл)» (Программирование).']);
-        Notification::create(['user_id'=>$students[0]->id,'type'=>'comment','icon'=>'💬','title'=>'Новый комментарий','text'=>'Комментарий преподавателя к 1 модулю.']);
+        // ===== Уведомления (с ссылками на обсуждение) =====
+        Notification::create(['user_id'=>$teacher->id,'type'=>'join','icon'=>'👤','title'=>'Новый студент','text'=>'<b>Кузнецов Павел</b> присоединился к <b>ПИб-231</b>.','link'=>'/teacher/groups/1/gradebook']);
+        Notification::create(['user_id'=>$teacher->id,'type'=>'reply','icon'=>'💬','title'=>'Ответ студента','text'=>'<b>Григорьева Ольга</b> ответила на комментарий.','link'=>'/teacher/groups/1/gradebook']);
+        Notification::create(['user_id'=>$students[0]->id,'type'=>'grade','icon'=>'📊','title'=>'Поставлена оценка','text'=>'Получен балл «92» за «Оценка (балл)» (Программирование).','link'=>'/student/subjects/1']);
+        Notification::create(['user_id'=>$students[0]->id,'type'=>'comment','icon'=>'💬','title'=>'Новый комментарий','text'=>'Комментарий преподавателя к 1 модулю.','link'=>'/student/subjects/1']);
     }
 }
