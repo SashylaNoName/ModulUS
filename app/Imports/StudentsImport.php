@@ -19,7 +19,7 @@ class StudentsImport implements ToModel, WithStartRow
         if ($name === '') return null;
 
         $student = User::firstOrCreate(
-            ['email' => $email ?: 'student_ . uniqid() . @stud.local'],
+            ['email' => $email !== '' ? $email : ('student_' . uniqid() . '@stud.local')],
             ['name' => $name, 'password' => 'password', 'role' => 'student']
         );
         $this->group->students()->syncWithoutDetaching([$student->id]);

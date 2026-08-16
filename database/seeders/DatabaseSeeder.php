@@ -50,9 +50,9 @@ class DatabaseSeeder extends Seeder
             ['Пересдача','retake',true], ['Комиссия','commission',true],
             ['Оценка (балл)','score',false], ['Оценка','grade',false],
         ];
-        $columns = [];
+        $columns = [];   // индексированный массив — порядку оценок ниже
         foreach ($colDefs as $i => [$title,$type,$hidden]) {
-            $columns[explode(' ',$title)[0]] = Column::create([
+            $columns[] = Column::create([
                 'group_id' => $group->id, 'title' => $title, 'type' => $type,
                 'hidden' => $hidden, 'sort_order' => $i,
             ]);
@@ -76,17 +76,15 @@ class DatabaseSeeder extends Seeder
             $students[] = $s;
         }
 
-        // ===== Оценки (по 4 студентам, как в прототипе) =====
+        // ===== Оценки (по 4 студентам; значения идут по порядку столбцов выше) =====
         $gradesMap = [
             1 => ['23','25','20','68','24','','','92','отл'],
             2 => ['20','18','22','60','18','','','78','хор'],
             3 => ['25','26','27','78','17','','','95','отл'],
             4 => ['12','10','11','33','15','22','','55','удовл'],
         ];
-        $colKeys = ['1','2','3','Итоги*','Экзамен','Пересдача','Комиссия','Оценка','Оценка'];
-        $colObjects = array_values($columns);
         foreach ($gradesMap as $studentIdx => $values) {
-            foreach ($colObjects as $i => $col) {
+            foreach ($columns as $i => $col) {
                 Grade::create([
                     'group_id'  => $group->id,
                     'user_id'   => $students[$studentIdx-1]->id,
@@ -98,11 +96,11 @@ class DatabaseSeeder extends Seeder
 
         // ===== Комментарии (диалоги с фото/файлом) =====
         // Алексеев — 1 модуль: с фото
-        $g1 = Grade::where('user_id', $students[0]->id)->where('column_id', $columns['1']->id)->first();
+        $g1 = Grade::where('user_id', $students[0]->id)->where('column_id', $columns[0]->id)->first();
         Comment::create(['grade_id'=>$g1->id,'user_id'=>$teacher->id,'text'=>'Отличная работа по первому модулю!']);
         Comment::create(['grade_id'=>$g1->id,'user_id'=>$students[0]->id,'text'=>'Спасибо! Прикрепляю решение доп. задачи.']);
         // Григорьева — 1 модуль
-        $g4 = Grade::where('user_id', $students[3]->id)->where('column_id', $columns['1']->id)->first();
+        $g4 = Grade::where('user_id', $students[3]->id)->where('column_id', $columns[0]->id)->first();
         Comment::create(['grade_id'=>$g4->id,'user_id'=>$teacher->id,'text'=>'Много ошибок. Подойдите на консультацию.']);
         Comment::create(['grade_id'=>$g4->id,'user_id'=>$students[3]->id,'text'=>'Подойду в четверг.']);
 
