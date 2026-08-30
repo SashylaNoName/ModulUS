@@ -579,27 +579,31 @@ a.feature-card, a.feature-card:hover, a.feature-card * { color: inherit; }
     background: var(--bg-elevated) !important;
 }
 
-/* === Глобальный фикс тёмной темы: текст при hover остаётся светлым === */
-[data-theme="dark"] a:hover,
-[data-theme="dark"] a.feature-card,
-[data-theme="dark"] a.feature-card:hover,
-[data-theme="dark"] a.feature-card *,
-[data-theme="dark"] .group-card,
-[data-theme="dark"] .group-card:hover,
-[data-theme="dark"] .group-card *,
-[data-theme="dark"] .card:hover,
-[data-theme="dark"] .card:hover *,
-[data-theme="dark"] .table tbody tr:hover,
-[data-theme="dark"] .table tbody tr:hover td,
-[data-theme="dark"] .table tbody tr:hover td a,
-[data-theme="dark"] .list-group-item:hover,
-[data-theme="dark"] .list-group-item:hover * {
-    color: var(--text) !important;
+/* === Точечные фиксы hover-цветов (вместо глобального color:!important) ===
+   Первопричина «чёрного текста при наведении» — стандартные Bootstrap-переменные
+   (hover-color #000 у таблиц и btn-light). Перекрываем их значением темы —
+   точечно, не задевая акценты внутри ячеек (бейджи, ссылки, иконки). */
+
+/* Таблицы: при наведении НЕ меняем ни фон, ни цвет текста */
+.table {
+    --bs-table-hover-color: var(--text);
+    --bs-table-hover-bg: transparent;
 }
-/* но акценты (синие) сохраняются */
-[data-theme="dark"] a:not(.btn):hover,
-[data-theme="dark"] .text-gradient { color: var(--brand-1) !important; }
-[data-theme="dark"] .text-gradient { color: #60a5fa !important; }
+
+/* Кнопки btn-light/secondary: Bootstrap красит hover-текст в чёрный */
+.btn-light:hover, .btn-light:focus,
+.btn-secondary:hover, .btn-secondary:focus {
+    color: var(--text);
+}
+
+/* Элементы списков-действий */
+.list-group-item-action:hover, .list-group-item-action:focus {
+    color: var(--text);
+}
+
+/* Карточки-ссылки: текст наследует цвет карточки (акценты внутри не трогаем) */
+a.feature-card, a.group-card { color: inherit; }
+a.feature-card:hover, a.group-card:hover { color: inherit; }
 
 /* ====== Аватары ====== */
 .avatar {

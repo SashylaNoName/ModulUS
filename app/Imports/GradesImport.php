@@ -77,6 +77,9 @@ class GradesImport implements OnEachRow, WithStartRow
             );
             $this->imported++;
         }
+
+        // пересчитать модули/итог по настройкам суммирования
+        $this->group->recomputeForUser((int) $student->id);
     }
 
     /* ================= Заголовок ================= */
@@ -135,6 +138,20 @@ class GradesImport implements OnEachRow, WithStartRow
 
     private function createColumn(string $title, ?Column $target): Column
     {
+        // Граница журнала: новые столбцы НЕ добавляются после «Итогов».
+        // Если ориентир правее итогов (или его нет) — вставляем перед «Итогами»,
+        // по умолчанию суммируя в 3-й модуль (настраивается в «Суммировании»).
+        $total = $this->group->totalColumn();
+        if ($total) {
+            $totalOrder = $this->group->columns()->whereKey($total->id)->value('sort_order');
+            $targetOrder = $target
+                ? $this->group->columns()->whereKey($target->id)->value('sort_order')
+                : PHP_INT_MAX;
+            if ($target === $total || $targetOrder > $totalOrder) {
+                $target = $total;
+            }
+        }
+
         if ($target) {
             // берём АКТУАЛЬНЫЙ sort_order из БД: модель в памяти могла
             // устареть после предыдущих вставок (сдвигов)
@@ -144,6 +161,9 @@ class GradesImport implements OnEachRow, WithStartRow
             if ($target->type === 'module' && preg_match('/^(\d)/u', $target->title, $m)) {
                 $pos = 'before' . $m[1];
                 $sum = (int) $m[1];
+            } elseif ($target->type === 'total') {
+                // встаёт после 3-го модуля, перед «Итогами»
+                $sum = 3;
             }
         } else {
             $order = ($this->group->columns()->max('sort_order') ?? -1) + 1;

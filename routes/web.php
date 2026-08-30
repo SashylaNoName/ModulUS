@@ -61,6 +61,8 @@ Route::middleware('auth')->group(function () {
         // Столбцы
         Route::post('/groups/{group}/columns',          [ColumnController::class, 'store'])->name('columns.store');
         Route::patch('/columns/{column}/visibility',    [ColumnController::class, 'toggleVisibility'])->name('columns.visibility');
+        Route::patch('/columns/{column}/summing',       [ColumnController::class, 'updateSumming'])->name('columns.summing');
+        Route::patch('/groups/{group}/summing',          [GroupController::class, 'updateSumming'])->name('groups.summing');
         Route::delete('/columns/{column}',              [ColumnController::class, 'destroy'])->name('columns.destroy');
 
         // Оценки (AJAX)

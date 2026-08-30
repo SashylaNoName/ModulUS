@@ -90,6 +90,26 @@ class GroupController extends Controller
         return redirect()->route('teacher.groups.index')->with('success', 'Группа удалена.');
     }
 
+    /** Настройки суммирования модулей группы (вкл/выкл по модулям + итог) */
+    public function updateSumming(Request $request, Group $group)
+    {
+        $this->authorizeGroup($group);
+        $data = $request->validate([
+            'sum_m1'    => ['nullable','boolean'],
+            'sum_m2'    => ['nullable','boolean'],
+            'sum_m3'    => ['nullable','boolean'],
+            'sum_total' => ['nullable','boolean'],
+        ]);
+        $group->update([
+            'sum_m1'    => $request->boolean('sum_m1'),
+            'sum_m2'    => $request->boolean('sum_m2'),
+            'sum_m3'    => $request->boolean('sum_m3'),
+            'sum_total' => $request->boolean('sum_total'),
+        ]);
+        $group->recomputeAll();
+        return back()->with('success', 'Настройки суммирования сохранены.');
+    }
+
     /* ===== Хелперы ===== */
     private function authorizeGroup(Group $group): void
     {

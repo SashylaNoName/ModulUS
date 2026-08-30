@@ -22,11 +22,19 @@ class ColumnController extends Controller
         $moduleCol = $group->columns()->where('title', $moduleTitle)->where('type','module')->first();
 
         if ($moduleCol) {
-            // сдвинуть все столбцы с sort_order >= позиции модуля вверх
-            $group->columns()->where('sort_order', '>=', $moduleCol->sort_order)->increment('sort_order');
-            $newOrder = $moduleCol->sort_order;
+            $order = $group->columns()->whereKey($moduleCol->id)->value('sort_order');
+            $group->columns()->where('sort_order', '>=', $order)->increment('sort_order');
+            $newOrder = $order;
         } else {
-            $newOrder = ($group->columns()->max('sort_order') ?? -1) + 1;
+            // модуля нет — вставляем перед «Итогами», либо (если и их нет) в конец
+            $total = $group->totalColumn();
+            if ($total) {
+                $order = $group->columns()->whereKey($total->id)->value('sort_order');
+                $group->columns()->where('sort_order', '>=', $order)->increment('sort_order');
+                $newOrder = $order;
+            } else {
+                $newOrder = ($group->columns()->max('sort_order') ?? -1) + 1;
+            }
         }
 
         $group->columns()->create([
@@ -45,6 +53,18 @@ class ColumnController extends Controller
         if ($column->group->user_id !== auth()->id()) abort(403);
         $column->update(['hidden' => ! $column->hidden]);
         return back()->with('success', 'Видимость столбца изменена.');
+    }
+
+    /** Настройка суммирования столбца (в какой модуль суммировать) */
+    public function updateSumming(Request $request, Column $column)
+    {
+        if ($column->group->user_id !== auth()->id()) abort(403);
+        $data = $request->validate([
+            'sum_into' => ['nullable', 'in:1,2,3'],   // null = не суммировать
+        ]);
+        $column->update(['sum_into' => $data['sum_into'] ?? null]);
+        $column->group->recomputeAll();
+        return back()->with('success', 'Настройка суммирования сохранена.');
     }
 
     /** Удалить столбец */

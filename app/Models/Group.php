@@ -5,7 +5,11 @@ use Illuminate\Support\Str;
 
 class Group extends Model
 {
-    protected $fillable = ['name','subject_id','user_id','level','year','number','invite_token'];
+    protected $fillable = ['name','subject_id','user_id','level','year','number','invite_token',
+                           'sum_m1','sum_m2','sum_m3','sum_total'];
+
+    protected $casts = ['sum_m1' => 'boolean', 'sum_m2' => 'boolean',
+                        'sum_m3' => 'boolean', 'sum_total' => 'boolean'];
 
     protected static function booted(): void
     {
@@ -28,6 +32,69 @@ class Group extends Model
 
     /** Ссылка-приглашение */
     public function getInviteUrlAttribute(): string { return url('/join/' . $this->invite_token); }
+
+    /** Столбец «Итоги» (граница: после него промежуточных столбцов быть не должно) */
+    public function totalColumn(): ?Column
+    {
+        return $this->columns()->where('type', 'total')->orderBy('sort_order')->first();
+    }
+
+    /** Столбцы-модули 1..3 по порядку */
+    public function moduleColumns()
+    {
+        return $this->columns()->where('type', 'module')->orderBy('sort_order')->get();
+    }
+
+    /**
+     * Пересчитать баллы модулей (и итога) для одного студента
+     * по настройкам суммирования (sum_into столбцов + флаги группы).
+     */
+    public function recomputeForUser(int $userId): void
+    {
+        $modules = $this->moduleColumns()->values();   // [0]=1 модуль, [1]=2, [2]=3
+        $studentGrades = $this->grades()->where('user_id', $userId)->get()->keyBy('column_id');
+
+        foreach ([1, 2, 3] as $n) {
+            if (! $this->{'sum_m'.$n}) continue;
+            $moduleCol = $modules[$n - 1] ?? null;
+            if (! $moduleCol) continue;
+
+            $parts = $this->grades()->where('user_id', $userId)
+                ->whereHas('column', fn ($q) => $q->where('sum_into', $n))
+                ->get()
+                ->filter(fn ($g) => is_numeric(trim($g->value)));
+
+            if ($parts->isEmpty()) continue;   // нечего суммировать — не трогаем
+
+            $sum = $parts->sum(fn ($g) => (float) $g->value);
+            Grade::updateOrCreate(
+                ['group_id' => $this->id, 'user_id' => $userId, 'column_id' => $moduleCol->id],
+                ['value' => (string) (fmod($sum, 1) == 0 ? (int) $sum : $sum)]
+            );
+        }
+
+        if ($this->sum_total) {
+            $total = $this->totalColumn();
+            if ($total) {
+                $modSum = $modules->filter()->sum(function ($mc) use ($studentGrades) {
+                    $v = trim((string) ($studentGrades[$mc->id]->value ?? ''));
+                    return is_numeric($v) ? (float) $v : 0;
+                });
+                Grade::updateOrCreate(
+                    ['group_id' => $this->id, 'user_id' => $userId, 'column_id' => $total->id],
+                    ['value' => (string) (fmod($modSum, 1) == 0 ? (int) $modSum : $modSum)]
+                );
+            }
+        }
+    }
+
+    /** Пересчитать для всех студентов группы */
+    public function recomputeAll(): void
+    {
+        foreach ($this->students()->pluck('users.id') as $uid) {
+            $this->recomputeForUser((int) $uid);
+        }
+    }
 
     /** Разбор названия «ПИб-231» → [спец, уровень, год, номер] */
     public static function parseName(string $name): array

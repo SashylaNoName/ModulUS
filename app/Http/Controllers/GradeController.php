@@ -33,6 +33,9 @@ class GradeController extends Controller
             'link'    => route('student.subject.show', $group, false),
         ]);
 
+        // пересчёт модулей/итога по настройкам суммирования
+        $group->recomputeForUser((int) $data['user_id']);
+
         return response()->json(['ok' => true, 'value' => $grade->value]);
     }
 }

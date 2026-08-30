@@ -17,6 +17,7 @@
     </div>
     <div class="d-flex flex-wrap gap-2">
         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#visModal"><i class="bi bi-eye"></i> Видимость</button>
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#sumModal"><i class="bi bi-calculator"></i> Суммирование</button>
         <a class="btn btn-outline-primary" href="{{ route('teacher.excel.export', $group) }}"><i class="bi bi-download"></i> Экспорт</a>
         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importGradesModal"><i class="bi bi-upload"></i> Импорт</button>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addColModal"><i class="bi bi-plus-lg"></i> Столбец</button>
@@ -99,6 +100,60 @@
                 </form>
             </div>
         @endforeach
+    </div>
+</div></div></div>
+
+{{-- Суммирование --}}
+@php
+    $intermediates = $columns->where('type', 'intermediate');
+@endphp
+<div class="modal fade" id="sumModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title"><i class="bi bi-calculator text-gradient"></i> Суммирование в модули</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <p class="small" style="color:var(--text-muted);">
+            Включите суммирование модуля — и его балл будет считаться суммой
+            промежуточных столбцов, отмеченных ниже. Изменения применяются сразу.
+        </p>
+
+        {{-- тумблеры модулей и итога --}}
+        <form method="POST" action="{{ route('teacher.groups.summing', $group) }}">@csrf @method('PATCH')
+            @foreach([1,2,3] as $n)
+                <div class="d-flex align-items-center justify-content-between py-1">
+                    <span>Суммировать столбцы в <b>{{ $n }} модуль</b></span>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="sum_m{{ $n }}" value="1"
+                               onchange="this.form.submit()" {{ $group->{'sum_m'.$n} ? 'checked' : '' }}>
+                    </div>
+                </div>
+            @endforeach
+            <hr>
+            <div class="d-flex align-items-center justify-content-between py-1">
+                <span>Считать <b>Итоги</b> суммой 1+2+3 модулей</span>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="sum_total" value="1"
+                           onchange="this.form.submit()" {{ $group->sum_total ? 'checked' : '' }}>
+                </div>
+            </div>
+        </form>
+
+        {{-- куда суммировать каждый промежуточный столбец --}}
+        @if($intermediates->isNotEmpty())
+            <hr>
+            <h6 class="fw-bold small mb-2">Промежуточные столбцы</h6>
+            @foreach($intermediates as $c)
+                <div class="d-flex align-items-center justify-content-between py-1">
+                    <span>{{ $c->title }}</span>
+                    <form method="POST" action="{{ route('teacher.columns.summing', $c) }}">@csrf @method('PATCH')
+                        <select name="sum_into" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+                            <option value="">— не суммировать —</option>
+                            @foreach([1,2,3] as $n)
+                                <option value="{{ $n }}" {{ (string)$c->sum_into === (string)$n ? 'selected' : '' }}>в {{ $n }} модуль</option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
+            @endforeach
+        @endif
     </div>
 </div></div></div>
 
