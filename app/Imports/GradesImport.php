@@ -40,6 +40,8 @@ class GradesImport implements OnEachRow, WithStartRow
     private array $colMap = [];
     /** @var int[] индексы колонок с частями ФИО */
     private array $nameCols = [];
+    /** @var array<int, true> id столбцов группы, уже занятых сопоставлением */
+    private array $used = [];
     private bool $headerDone = false;
 
     public function __construct(private Group $group) {}
@@ -90,12 +92,17 @@ class GradesImport implements OnEachRow, WithStartRow
     private function parseHeader(array $cells): void
     {
         $groupCols = $this->group->columns()->orderBy('sort_order')->get();
-        $byTitle = [];
-        foreach ($groupCols as $c) $byTitle[$this->norm($c->title)] = $c;
+
+        /* Сегмент столбца группы = сколько модулей стоит левее него:
+           0 — до 1 модуля, 1 — между 1 и 2, 2 — между 2 и 3, 3 — после 3-го. */
+        $segOf = [];
+        $seen = 0;
+        foreach ($groupCols as $c) {
+            if ($c->type === 'module') { $segOf[$c->id] = $seen; $seen++; }
+            else $segOf[$c->id] = $seen;
+        }
 
         // Именные колонки определяем ПО ЗАГОЛОВКУ («Фамилия», «Имя», «Студент»…).
-        // Раньше брались «все до первого узнанного столбца» — и колонки вида
-        // «к/р 1» перед «1 модуль» попадали в ФИО (оценки терялись).
         $this->nameCols = [];
         foreach ($cells as $i => $title) {
             $t = $this->norm((string) $title);
@@ -103,12 +110,56 @@ class GradesImport implements OnEachRow, WithStartRow
         }
         if ($this->nameCols === [] && isset($cells[0])) $this->nameCols = [0];
 
-        // проход 1: какие колонки файла совпали со столбцами группы
+        // Якоря модулей в файле: ПЕРВОЕ вхождение каждого заголовка модуля.
+        // Дубликат («1 модуль» второй раз) якорем не считается.
+        $moduleTitles = $groupCols->where('type', 'module')->map(fn ($c) => $this->norm($c->title))->all();
+        $anchorByTitle = [];
+        foreach ($cells as $i => $title) {
+            $t = $this->norm((string) $title);
+            if (in_array($t, $moduleTitles, true) && ! isset($anchorByTitle[$t])) {
+                $anchorByTitle[$t] = (int) $i;
+            }
+        }
+        $anchorPos = array_values($anchorByTitle);
+        sort($anchorPos);
+        $fileSeg = function (int $i) use ($anchorPos): int {
+            $s = 0;
+            foreach ($anchorPos as $p) { if ($p < $i) $s++; }
+            return $s;
+        };
+
+        // Столбцы группы по заголовку
+        $byTitle = [];
+        foreach ($groupCols as $c) $byTitle[$this->norm($c->title)][] = $c;
+
+        // Сопоставление: по заголовку, а для промежуточных — ЕЩЁ и по сегменту.
+        // Иначе «к/р 1» из «до 1 модуля» склеивается с чужим «к/р 1» из
+        // «до 2 модуля», и значения перезаписывают друг друга.
         $matches = [];
         foreach ($cells as $i => $title) {
             if (in_array((int) $i, $this->nameCols, true)) continue;
             $t = $this->norm((string) $title);
-            if ($t !== '' && isset($byTitle[$t])) $matches[$i] = $byTitle[$t];
+            if ($t === '' || ! isset($byTitle[$t])) continue;
+
+            $wantIntermediate = optional($byTitle[$t][0])->type === 'intermediate';
+            $fs = $fileSeg((int) $i);
+
+            $found = null;
+            foreach ($byTitle[$t] as $c) {
+                if (isset($this->used[$c->id])) continue;
+                if ($wantIntermediate && $segOf[$c->id] !== $fs) continue;  // чужой сегмент
+                $found = $c;
+                break;
+            }
+            // Модули/экзамен/итоги уникальны: повторный заголовок в файле —
+            // это дубликат, его значение просто перезапишет то же поле.
+            if (! $found && ! $wantIntermediate) $found = $byTitle[$t][0];
+
+            if ($found) {
+                $matches[$i] = $found;
+                $this->used[$found->id] = true;
+            }
+            // не нашлось в своём сегменте — уйдём в создание нового столбца
         }
 
         if ($matches === []) {
@@ -124,7 +175,7 @@ class GradesImport implements OnEachRow, WithStartRow
             return;
         }
 
-        // проход 2: совпавшие берём, незнакомые — создаём перед ближайшим
+        // Проход 2: незнакомые заголовки — создаём перед ближайшим
         // совпавшим столбцом справа (сохраняя порядок из файла)
         foreach ($cells as $i => $title) {
             if (in_array((int) $i, $this->nameCols, true)) continue;
