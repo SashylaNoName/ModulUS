@@ -127,7 +127,13 @@
     <form method="POST" action="{{ route('teacher.excel.importGrades', $group) }}" enctype="multipart/form-data">@csrf
         <div class="modal-body">
             <div class="mb-3"><label class="form-label">Файл Excel</label><input type="file" name="file" class="form-control" accept=".xlsx,.xls" required></div>
-            <div class="alert alert-warning small mb-0">Структура файла должна совпадать с журналом.</div>
+            <div class="alert alert-info small mb-0">
+                <b>Как готовить файл:</b> первая строка — заголовки. Начало строки — ФИО студента
+                (одной колонкой или отдельно «Фамилия» + «Имя»). Дальше — заголовки столбцов журнала:
+                знакомые заполнятся, новые (например «к/р 1») создадутся как промежуточные
+                на своей позиции. Студентов из файла, которых нет в группе, добавим в неё.
+                По завершении покажем отчёт: сколько оценок записано и что пропущено.
+            </div>
         </div>
         <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Отмена</button><button class="btn btn-primary">Импортировать</button></div>
     </form>
