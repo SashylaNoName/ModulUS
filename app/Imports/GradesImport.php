@@ -84,39 +84,50 @@ class GradesImport implements OnEachRow, WithStartRow
 
     /* ================= Заголовок ================= */
 
+    /** Заголовки колонок с частями ФИО (регистр/пробелы не важны) */
+    private const NAME_HEADERS = ['фамилия','имя','отчество','фио','студент','fio','student','full name'];
+
     private function parseHeader(array $cells): void
     {
         $groupCols = $this->group->columns()->orderBy('sort_order')->get();
         $byTitle = [];
         foreach ($groupCols as $c) $byTitle[$this->norm($c->title)] = $c;
 
+        // Именные колонки определяем ПО ЗАГОЛОВКУ («Фамилия», «Имя», «Студент»…).
+        // Раньше брались «все до первого узнанного столбца» — и колонки вида
+        // «к/р 1» перед «1 модуль» попадали в ФИО (оценки терялись).
+        $this->nameCols = [];
+        foreach ($cells as $i => $title) {
+            $t = $this->norm((string) $title);
+            if ($t !== '' && in_array($t, self::NAME_HEADERS, true)) $this->nameCols[] = (int) $i;
+        }
+        if ($this->nameCols === [] && isset($cells[0])) $this->nameCols = [0];
+
         // проход 1: какие колонки файла совпали со столбцами группы
         $matches = [];
         foreach ($cells as $i => $title) {
-            if ($i == 0) continue;                       // 0-я колонка — всегда имя
+            if (in_array((int) $i, $this->nameCols, true)) continue;
             $t = $this->norm((string) $title);
             if ($t !== '' && isset($byTitle[$t])) $matches[$i] = $byTitle[$t];
         }
 
         if ($matches === []) {
             // ни один заголовок не совпал — позиционное сопоставление
-            // (файл в структуре экспорта: A=ФИО, дальше по порядку столбцов)
-            $this->nameCols = [0];
+            // (файл в структуре экспорта: имя, дальше по порядку столбцов)
             $ordered = $groupCols->values();
+            $j = 0;
             foreach ($cells as $i => $_) {
-                if ($i == 0) continue;
-                if (isset($ordered[$i - 1])) $this->colMap[$i] = $ordered[$i - 1];
+                if (in_array((int) $i, $this->nameCols, true)) continue;
+                if (isset($ordered[$j])) $this->colMap[$i] = $ordered[$j];
+                $j++;
             }
             return;
         }
 
-        $firstMatched = min(array_keys($matches));
-        $this->nameCols = range(0, $firstMatched - 1);
-
         // проход 2: совпавшие берём, незнакомые — создаём перед ближайшим
         // совпавшим столбцом справа (сохраняя порядок из файла)
         foreach ($cells as $i => $title) {
-            if ($i < $firstMatched) continue;
+            if (in_array((int) $i, $this->nameCols, true)) continue;
             $t = $this->norm((string) $title);
             if ($t === '') continue;
             if (isset($matches[$i])) { $this->colMap[$i] = $matches[$i]; continue; }
