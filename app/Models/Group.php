@@ -78,8 +78,13 @@ class Group extends Model
         if ($this->sum_total) {
             $total = $this->totalColumn();
             if ($total) {
-                $modSum = $modules->filter()->sum(function ($mc) use ($studentGrades) {
-                    $v = trim((string) ($studentGrades[$mc->id]->value ?? ''));
+                // значения модулей берём ЗАНОВО из БД: они могли быть
+                // только что пересчитаны выше в этом же вызове
+                $freshMods = $this->grades()->where('user_id', $userId)
+                    ->whereIn('column_id', $modules->filter()->pluck('id'))
+                    ->pluck('value', 'column_id');
+                $modSum = $modules->filter()->sum(function ($mc) use ($freshMods) {
+                    $v = trim((string) ($freshMods[$mc->id] ?? ''));
                     return is_numeric($v) ? (float) $v : 0;
                 });
                 Grade::updateOrCreate(
