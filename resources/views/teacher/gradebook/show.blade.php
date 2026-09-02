@@ -216,14 +216,35 @@
 @endsection
 
 @section('scripts')
+const CHAT = @json($chat);
+
 document.getElementById('chatModal').addEventListener('show.bs.modal', function(e){
     const btn = e.relatedTarget;
     const gradeId = btn.dataset.gradeId;
     document.getElementById('chat-context').textContent = btn.dataset.context;
     document.getElementById('chat-grade-id').value = gradeId;
     document.getElementById('chatForm').action = '{{ url('/grades') }}/' + gradeId + '/comments';
-    document.getElementById('chat-thread').innerHTML = '<p class="small" style="color:var(--text-muted);">История диалога — на странице предмета/после перезагрузки.</p>';
+    renderChat(gradeId);
 });
+
+function renderChat(gradeId){
+    const el = document.getElementById('chat-thread');
+    const msgs = CHAT[gradeId];
+    if (!msgs || !msgs.length) {
+        el.innerHTML = '<p class="small" style="color:var(--text-muted);">Комментариев пока нет.</p>';
+        return;
+    }
+    el.innerHTML = '<div class="comment-thread">' + msgs.map(function(m){
+        let b = '<div class="comment-bubble '+(!m.mine?'teacher':'')+'">'
+            + '<div class="d-flex justify-content-between"><strong class="small">'+m.name+'</strong>'
+            + '<span style="color:var(--text-soft);font-size:.7rem;">'+(m.time||'')+'</span></div>';
+        if (m.text)  b += '<div class="small mt-1">'+m.text+'</div>';
+        if (m.image) b += '<img src="'+m.image+'" class="img-fluid rounded mt-2" style="max-height:200px;" onclick="window.open(this.src,\'_blank\')">';
+        if (m.file)  b += '<a href="'+m.file+'" target="_blank" class="d-inline-flex align-items-center gap-1 mt-2 small"><i class="bi bi-paperclip"></i> '+(m.fname||'файл')+'</a>';
+        return b + '</div>';
+    }).join('') + '</div>';
+    el.scrollTop = el.scrollHeight;
+}
 
 // AJAX сохранение оценки
 function saveGrade(input){
