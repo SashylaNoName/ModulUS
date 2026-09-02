@@ -426,6 +426,8 @@ function initReveal() {
 function initPage() {
     paintThemeButtons();
     initReveal();
+}
+
 /* Показ выбранного вложения (фото-превью или имя файла) + крестик удаления */
 function attachInfo(input){
     var box = input.closest('form') && input.closest('form').querySelector('.attach-info');
