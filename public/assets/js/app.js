@@ -426,24 +426,43 @@ function initReveal() {
 function initPage() {
     paintThemeButtons();
     initReveal();
-}
-
-/* Показ выбранного вложения (фото-превью или имя файла) в форме чата */
+/* Показ выбранного вложения (фото-превью или имя файла) + крестик удаления */
 function attachInfo(input){
     var box = input.closest('form') && input.closest('form').querySelector('.attach-info');
     if (!box) return;
     box.innerHTML = '';
-    if (input.files && input.files[0]) {
-        var f = input.files[0];
-        var name = document.createElement('div');
-        name.textContent = (input.accept && input.accept.indexOf('image') === 0 ? '🖼 ' : '📎 ') + f.name;
-        name.style.cssText = 'color:var(--brand-1);word-break:break-all;';
-        box.appendChild(name);
-        if (/^image\//.test(f.type)) {
-            var img = document.createElement('img');
-            img.src = URL.createObjectURL(f);
-            img.style.cssText = 'max-height:90px;border-radius:8px;display:block;margin-top:6px;';
-            box.appendChild(img);
-        }
+    if (! (input.files && input.files[0])) return;
+
+    var f = input.files[0];
+    var isImg = /^image\//.test(f.type) && input.accept && input.accept.indexOf('image') === 0;
+
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:inline-flex;align-items:flex-start;gap:8px;margin-top:6px;';
+
+    var body = document.createElement('div');
+    var name = document.createElement('div');
+    name.textContent = (isImg ? '🖼 ' : '📎 ') + f.name;
+    name.style.cssText = 'color:var(--brand-1);word-break:break-all;';
+    body.appendChild(name);
+    if (isImg) {
+        var img = document.createElement('img');
+        img.src = URL.createObjectURL(f);
+        img.style.cssText = 'max-height:90px;border-radius:8px;display:block;margin-top:6px;';
+        body.appendChild(img);
     }
+    wrap.appendChild(body);
+
+    // крестик: убрать вложение
+    var x = document.createElement('button');
+    x.type = 'button';
+    x.innerHTML = '&times;';
+    x.title = 'Убрать вложение';
+    x.style.cssText = 'border:none;background:var(--surface-solid);color:var(--danger);font-size:1.2rem;line-height:1;padding:2px 8px;border-radius:8px;cursor:pointer;';
+    x.onclick = function(){
+        input.value = '';          // снять выбор файла
+        box.innerHTML = '';
+    };
+    wrap.appendChild(x);
+
+    box.appendChild(wrap);
 }
