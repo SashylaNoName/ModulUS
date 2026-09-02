@@ -14,6 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+        // залогиненного со страниц входа/регистрации — на его дашборд
+        $middleware->redirectUsersTo(function () {
+            $user = auth()->user();
+            if ($user && $user->isTeacher()) return route('teacher.dashboard');
+            if ($user && $user->isStudent()) return route('student.dashboard');
+            return '/';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
