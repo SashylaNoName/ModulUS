@@ -2,7 +2,6 @@
     $items = [
         ['dashboard','🏠','Главная', route('teacher.dashboard')],
         ['groups','👥','Мои группы', route('teacher.groups.index')],
-        ['subjects','📚','Предметы', route('teacher.groups.index').'#subjects'],
         ['notif','🔔','Уведомления', route('notifications.index')],
     ];
 @endphp
