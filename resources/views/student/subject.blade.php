@@ -96,10 +96,11 @@
                 <input type="hidden" name="grade_id" id="chat-grade-id">
                 <textarea class="form-control mb-2" rows="2" name="text" placeholder="Ваше сообщение..."></textarea>
                 <div class="d-flex gap-2">
-                    <label class="btn btn-light"><i class="bi bi-paperclip"></i><input type="file" name="file" hidden></label>
-                    <label class="btn btn-light"><i class="bi bi-image"></i><input type="file" name="image" accept="image/*" hidden></label>
+                    <label class="btn btn-light"><i class="bi bi-paperclip"></i><input type="file" name="file" hidden onchange="attachInfo(this)"></label>
+                    <label class="btn btn-light"><i class="bi bi-image"></i><input type="file" name="image" accept="image/*" hidden onchange="attachInfo(this)"></label>
                     <button class="btn btn-primary ms-auto"><i class="bi bi-send"></i> Отправить</button>
                 </div>
+                <div class="attach-info small"></div>
             </form>
         </div>
     </div>

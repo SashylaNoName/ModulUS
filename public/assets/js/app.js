@@ -427,3 +427,23 @@ function initPage() {
     paintThemeButtons();
     initReveal();
 }
+
+/* Показ выбранного вложения (фото-превью или имя файла) в форме чата */
+function attachInfo(input){
+    var box = input.closest('form') && input.closest('form').querySelector('.attach-info');
+    if (!box) return;
+    box.innerHTML = '';
+    if (input.files && input.files[0]) {
+        var f = input.files[0];
+        var name = document.createElement('div');
+        name.textContent = (input.accept && input.accept.indexOf('image') === 0 ? '🖼 ' : '📎 ') + f.name;
+        name.style.cssText = 'color:var(--brand-1);word-break:break-all;';
+        box.appendChild(name);
+        if (/^image\//.test(f.type)) {
+            var img = document.createElement('img');
+            img.src = URL.createObjectURL(f);
+            img.style.cssText = 'max-height:90px;border-radius:8px;display:block;margin-top:6px;';
+            box.appendChild(img);
+        }
+    }
+}
