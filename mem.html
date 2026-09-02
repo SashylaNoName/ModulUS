@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Студенты группы — ModulUS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="http://127.0.0.1:8000/assets/css/style.css" rel="stylesheet">
+    <script>(function(){var t=localStorage.getItem('modulus-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+<div id="app-header">
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid px-3">
+            <button class="btn btn-light d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            <a class="navbar-brand" href="http://127.0.0.1:8000/teacher/dashboard">Modul<span class="brand-dot">US</span></a>
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                
+                <button class="theme-toggle" onclick="toggleTheme()" title="Сменить тему"></button>
+                
+                <div class="dropdown">
+                    <button class="icon-btn position-relative" data-bs-toggle="dropdown" title="Уведомления" aria-label="Уведомления">
+                        <i class="bi bi-bell"></i>
+                        <span class="notif-dot"></span>                    </button>
+                    <div class="dropdown-menu dropdown-menu-end p-0" style="width:min(360px, calc(100vw - 1.5rem));max-width:min(360px, calc(100vw - 1.5rem));">
+                        <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom" style="border-color:var(--border) !important;">
+                            <strong>Уведомления</strong>
+                            <a href="http://127.0.0.1:8000/notifications" class="small">Все</a>
+                        </div>
+                                                    <a href="/teacher/groups/1/gradebook" class="notif-item d-block text-decoration-none unread" style="color:var(--text);">
+                                <div class="d-flex gap-2">
+                                    <span class="fs-5">👤</span>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold small">Новый студент в группе</div>
+                                        <div class="small" style="color:var(--text-muted);"><b>Репро Репо</b> присоединился к группе <b>ПИб-231</b>.</div>
+                                        <div style="color:var(--text-soft);font-size:.72rem;">2 недели назад</div>
+                                    </div>
+                                </div>
+                            </a>
+                                                    <a href="/teacher/groups/2/gradebook" class="notif-item d-block text-decoration-none unread" style="color:var(--text);">
+                                <div class="d-flex gap-2">
+                                    <span class="fs-5">👤</span>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold small">Новый студент в группе</div>
+                                        <div class="small" style="color:var(--text-muted);"><b>Алексеев Артём Дмитриевич</b> присоединился к группе <b>МКНб-231</b>.</div>
+                                        <div style="color:var(--text-soft);font-size:.72rem;">2 недели назад</div>
+                                    </div>
+                                </div>
+                            </a>
+                                                    <a href="/teacher/groups/1/gradebook" class="notif-item d-block text-decoration-none " style="color:var(--text);">
+                                <div class="d-flex gap-2">
+                                    <span class="fs-5">👤</span>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold small">Новый студент в группе</div>
+                                        <div class="small" style="color:var(--text-muted);"><b>Тестов Тест</b> присоединился к группе <b>ПИб-231</b>.</div>
+                                        <div style="color:var(--text-soft);font-size:.72rem;">2 недели назад</div>
+                                    </div>
+                                </div>
+                            </a>
+                                            </div>
+                </div>
+                
+                <div class="dropdown">
+                    <button class="btn d-flex align-items-center gap-2 p-1" data-bs-toggle="dropdown">
+                        <span class="avatar">ИМ</span>
+                        <span class="text-start d-none d-md-block lh-1">
+                            <span class="d-block fw-semibold user-name" style="font-size:.9rem;">Иванова Мария Петровна</span>
+                            <span class="badge badge-role-teacher">Преподаватель</span>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="http://127.0.0.1:8000/teacher/dashboard">🏠 Главная</a></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:8000/notifications"><i class="bi bi-bell me-1"></i> Уведомления</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="http://127.0.0.1:8000/logout">
+                                <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off">                                <button type="submit" class="dropdown-item text-danger">🚪 Выйти</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="container-fluid">
+    <div class="row g-0">
+        <div class="col-lg-2 col-md-3">
+            
+            <aside class="sidebar p-2 d-none d-lg-block">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+        <a class="nav-link " href="http://127.0.0.1:8000/teacher/dashboard">
+            <span>🏠</span><span>Главная</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " href="http://127.0.0.1:8000/teacher/groups">
+            <span>👥</span><span>Мои группы</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " href="http://127.0.0.1:8000/teacher/groups#subjects">
+            <span>📚</span><span>Предметы</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " href="http://127.0.0.1:8000/notifications">
+            <span>🔔</span><span>Уведомления</span>
+        </a>
+    </li>
+                </ul>
+            </aside>
+            
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title">Меню</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                </div>
+                <div class="offcanvas-body p-0">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+        <a class="nav-link " href="http://127.0.0.1:8000/teacher/dashboard">
+            <span>🏠</span><span>Главная</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " href="http://127.0.0.1:8000/teacher/groups">
+            <span>👥</span><span>Мои группы</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " href="http://127.0.0.1:8000/teacher/groups#subjects">
+            <span>📚</span><span>Предметы</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " href="http://127.0.0.1:8000/notifications">
+            <span>🔔</span><span>Уведомления</span>
+        </a>
+    </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-10 col-md-9 p-3 p-md-4">
+                        <div class="d-flex align-items-center mb-3" data-reveal>
+    <a href="http://127.0.0.1:8000/teacher/groups" class="btn btn-light me-2"><i class="bi bi-arrow-left"></i></a>
+    <div><h3 class="fw-bold mb-0">Студенты группы ПИб-231</h3>
+    <span class="small" style="color:var(--text-muted);">Программирование · Бакалавриат</span></div>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-4" data-reveal>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-person-plus"></i> Добавить</button>
+    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#inviteModal"><i class="bi bi-link-45deg"></i> Ссылка</button>
+    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#importModal"><i class="bi bi-file-earmark-spreadsheet"></i> Импорт Excel</button>
+    <a href="http://127.0.0.1:8000/teacher/groups/1/gradebook" class="btn btn-light"><i class="bi bi-table"></i> Журнал</a>
+</div>
+
+<div class="card" data-reveal>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-pretty align-middle mb-0">
+                <thead><tr><th style="width:50px;">#</th><th>Студент</th><th>Email</th><th class="text-end">Действия</th></tr></thead>
+                <tbody>
+                                            <tr>
+                            <td>1</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">АА</span><span class="fw-semibold">Алексеев Артём Дмитриевич</span></div></td>
+                            <td>alexeev@stud.ru</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/2" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>2</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">БА</span><span class="fw-semibold">Борисова Анна Сергеевна</span></div></td>
+                            <td>borisova@stud.ru</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/3" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>3</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">ВИ</span><span class="fw-semibold">Волков Иван Игоревич</span></div></td>
+                            <td>volkov@stud.ru</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/4" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>4</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">ГО</span><span class="fw-semibold">Григорьева Ольга Павловна</span></div></td>
+                            <td>grigoreva@stud.ru</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/5" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>5</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">ДС</span><span class="fw-semibold">Дмитриев Сергей Андреевич</span></div></td>
+                            <td>dmitriev@stud.ru</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/6" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>6</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">ЕЕ</span><span class="fw-semibold">Егорова Екатерина Максимовна</span></div></td>
+                            <td>egorova@stud.ru</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/7" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>7</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">ЖД</span><span class="fw-semibold">Жуков Дмитрий Романович</span></div></td>
+                            <td>zhukov@stud.ru</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/8" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>8</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">ЖС</span><span class="fw-semibold">Жулев Саша</span></div></td>
+                            <td>zulev_sasa_6a97e85a4297b@stud.local</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/34" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>9</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">ЗМ</span><span class="fw-semibold">Зайцева Мария Алексеевна</span></div></td>
+                            <td>zaytseva@stud.ru</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/9" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>10</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">ПА</span><span class="fw-semibold">Паршенина Антонина</span></div></td>
+                            <td>parsenina_antonina_6a97e85b5b765@stud.local</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/36" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                            <tr>
+                            <td>11</td>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar avatar-sm">РМ</span><span class="fw-semibold">Расприн Михаил</span></div></td>
+                            <td>rasprin_mixail_6a97e85b002ef@stud.local</td>
+                            <td class="text-end">
+                                <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members/35" class="d-inline" onsubmit="return confirm('Исключить студента?')">
+                                    <input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                                    <button class="btn btn-sm btn-light text-danger" title="Исключить"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Добавить студента</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/members"><input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off">        <div class="modal-body">
+            <div class="mb-3"><label class="form-label">ФИО</label><input type="text" name="name" class="form-control" required></div>
+            <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Отмена</button><button class="btn btn-primary">Добавить</button></div>
+    </form>
+</div></div></div>
+
+
+<div class="modal fade" id="inviteModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Ссылка-приглашение</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+        <p style="color:var(--text-muted);" class="small">Поделитесь ссылкой со студентами.</p>
+        <div class="input-group"><input type="text" class="form-control" id="invite-link" value="http://127.0.0.1:8000/join/abc123xyz" readonly>
+            <button class="btn btn-outline-primary" onclick="copyInvite()"><i class="bi bi-clipboard"></i></button></div>
+    </div>
+</div></div></div>
+
+
+<div class="modal fade" id="importModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Импорт студентов из Excel</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form method="POST" action="http://127.0.0.1:8000/teacher/groups/1/import-students" enctype="multipart/form-data"><input type="hidden" name="_token" value="FXllt18VYsMLn9bv7luQCM4fYbqmezHI4IUTnM05" autocomplete="off">        <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Файл Excel</label><input type="file" name="file" class="form-control" accept=".xlsx,.xls" required></div>
+            <div class="alert alert-info small mb-0">Колонка A — ФИО, B — email. Первая строка — заголовок.</div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Отмена</button><button class="btn btn-primary">Импортировать</button></div>
+    </form>
+</div></div></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="http://127.0.0.1:8000/assets/js/app.js"></script>
+<script>
+    // polling уведомлений (раз в 60 сек)
+    setInterval(function(){
+        fetch('http://127.0.0.1:8000/api/notifications/unread-count')
+            .then(r => r.json())
+            .then(d => {
+                document.querySelectorAll('.notif-dot').forEach(el => {
+                    el.style.display = d.count > 0 ? '' : 'none';
+                });
+            }).catch(()=>{});
+    }, 60000);
+    initPage();
+    function copyInvite(){var i=document.getElementById('invite-link');i.select();navigator.clipboard&&navigator.clipboard.writeText(i.value);toast('Ссылка скопирована');}
+</script>
+</body>
+</html>

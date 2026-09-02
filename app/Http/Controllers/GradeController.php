@@ -36,6 +36,18 @@ class GradeController extends Controller
         // пересчёт модулей/итога по настройкам суммирования
         $group->recomputeForUser((int) $data['user_id']);
 
-        return response()->json(['ok' => true, 'value' => $grade->value]);
+        // актуальные значения модулей (и итога) — чтобы фронт сразу
+        // обновил ячейки, без перезагрузки страницы
+        $cells = [];
+        foreach ($group->moduleColumns() as $mc) {
+            $cells[$mc->id] = (string) ($group->grades()
+                ->where('user_id', $data['user_id'])->where('column_id', $mc->id)->value('value') ?? '');
+        }
+        if ($group->sum_total && $total = $group->totalColumn()) {
+            $cells[$total->id] = (string) ($group->grades()
+                ->where('user_id', $data['user_id'])->where('column_id', $total->id)->value('value') ?? '');
+        }
+
+        return response()->json(['ok' => true, 'value' => $grade->value, 'cells' => $cells]);
     }
 }

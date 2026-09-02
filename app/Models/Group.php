@@ -59,17 +59,19 @@ class Group extends Model
             $moduleCol = $modules[$n - 1] ?? null;
             if (! $moduleCol) continue;
 
+            // нет настроенных суммируемых столбцов — модуль ведётся вручную
+            if (! $this->columns()->where('sum_into', $n)->exists()) continue;
+
+            // пересчитываем ВСЕГДА: очистили все к/р — модуль станет пустым
             $parts = $this->grades()->where('user_id', $userId)
                 ->whereHas('column', fn ($q) => $q->where('sum_into', $n))
                 ->get()
                 ->filter(fn ($g) => is_numeric(trim($g->value)));
 
-            if ($parts->isEmpty()) continue;   // нечего суммировать — не трогаем
-
             $sum = $parts->sum(fn ($g) => (float) $g->value);
             Grade::updateOrCreate(
                 ['group_id' => $this->id, 'user_id' => $userId, 'column_id' => $moduleCol->id],
-                ['value' => (string) (fmod($sum, 1) == 0 ? (int) $sum : $sum)]
+                ['value' => $parts->isEmpty() ? '' : (string) (fmod($sum, 1) == 0 ? (int) $sum : $sum)]
             );
         }
 

@@ -231,6 +231,16 @@ function saveGrade(input){
         method: 'PUT',
         headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}','Content-Type':'application/json','Accept':'application/json'},
         body: JSON.stringify({user_id: input.dataset.student, column_id: input.dataset.column, value: input.value})
-    }).then(r=>r.json()).then(function(){ toast('Балл сохранён'); }).catch(function(){});
+    }).then(r=>r.json()).then(function(d){
+        toast('Балл сохранён');
+        // сразу обновить пересчитанные модули/итог в этой же строке
+        if (d && d.cells) {
+            Object.keys(d.cells).forEach(function(colId){
+                var cell = document.querySelector(
+                    '.cell-input[data-student="'+input.dataset.student+'"][data-column="'+colId+'"]');
+                if (cell) cell.value = d.cells[colId];
+            });
+        }
+    }).catch(function(){});
 }
 @endsection
