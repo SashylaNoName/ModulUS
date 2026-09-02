@@ -23,6 +23,11 @@
 
     <form method="POST" action="{{ route('register') }}">
       @csrf
+      @if($invited ?? false)
+        {{-- по ссылке-приглашению — только студент --}}
+        <input type="hidden" name="role" value="student">
+        <div class="alert alert-info small mb-4">Вы присоединяетесь к группе по приглашению — регистрация доступна только для студентов.</div>
+      @else
       <label class="form-label fw-semibold">Я регистрируюсь как:</label>
       <div class="row g-2 mb-4">
         <div class="col-6">
@@ -40,8 +45,9 @@
           </label>
         </div>
       </div>
+      @endif
 
-      <div id="teacher-fields">
+      <div id="teacher-fields" @if($invited ?? false) style="display:none" @endif>
         <div class="row g-2">
           <div class="col-md-6 mb-3">
             <label class="form-label">ФИО</label>
@@ -117,5 +123,10 @@ function toggleBlock(id, show){
   el.querySelectorAll('input,select,textarea').forEach(function(inp){ inp.disabled=!show; });
 }
 // при загрузке — применить к скрытому блоку
+@if($invited ?? false)
+toggleBlock('teacher-fields', false);
+toggleBlock('student-fields', true);
+@else
 toggleBlock('student-fields', false);
+@endif
 @endsection

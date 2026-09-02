@@ -38,7 +38,8 @@ class AuthController extends Controller
     /** Форма регистрации */
     public function showRegister()
     {
-        return view('auth.register');
+        // по ссылке-приглашению регистрируется только студент
+        return view('auth.register', ['invited' => session('invite_token')]);
     }
 
     /** Регистрация */
@@ -58,9 +59,10 @@ class AuthController extends Controller
             'name'        => $data['name'],
             'email'       => $data['email'],
             'password'    => $data['password'],
-            'role'        => $data['role'],
-            'department'  => $data['role'] === 'teacher' ? ($data['department'] ?? null) : null,
-            'invite_code' => $data['role'] === 'student' ? ($data['invite_code'] ?? null) : null,
+            // с кодом приглашения — только студент (защита от подмены роли)
+            'role'        => !empty($data['invite_code']) ? 'student' : $data['role'],
+            'department'  => $data['role'] === 'teacher' && empty($data['invite_code']) ? ($data['department'] ?? null) : null,
+            'invite_code' => $data['role'] === 'student' || !empty($data['invite_code']) ? ($data['invite_code'] ?? null) : null,
         ]);
 
         // привяжем студента к группе: по коду приглашения (invite_code,
