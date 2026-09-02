@@ -57,7 +57,7 @@
         <div class="row g-2">
           <div class="col-md-6 mb-3">
             <label class="form-label">ФИО</label>
-            <input type="text" name="name" class="form-control" placeholder="Алексеев Артём Дмитриевич">
+            <input type="text" name="name" class="form-control" placeholder="Алексеев Артём Дмитриевич" value="{{ old('name') }}" required>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Группа</label>
@@ -106,8 +106,16 @@
 @section('scripts')
 function switchRole(){
   const t=document.querySelector('input[name=role]:checked').value==='teacher';
-  document.getElementById('teacher-fields').style.display=t?'':'none';
-  document.getElementById('student-fields').style.display=t?'none':'';
-  // синхронизируем поле ФИО между блоками
+  toggleBlock('teacher-fields', t);
+  toggleBlock('student-fields', !t);
 }
+// скрытый блок отключаем целиком: disabled-поля не проходят required-валидацию
+// (иначе браузер молча блокирует отправку) и не отправляются на сервер
+function toggleBlock(id, show){
+  var el=document.getElementById(id);
+  el.style.display=show?'':'none';
+  el.querySelectorAll('input,select,textarea').forEach(function(inp){ inp.disabled=!show; });
+}
+// при загрузке — применить к скрытому блоку
+toggleBlock('student-fields', false);
 @endsection
