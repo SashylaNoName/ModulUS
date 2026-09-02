@@ -63,9 +63,11 @@ class AuthController extends Controller
             'invite_code' => $data['role'] === 'student' ? ($data['invite_code'] ?? null) : null,
         ]);
 
-        // если студент указал группу при регистрации — привяжем его к ней
-        if ($user->isStudent() && !empty($data['student_group'])) {
-            $group = Group::where('name', $data['student_group'])->orWhere('invite_token', $data['student_group'])->first();
+        // привяжем студента к группе: по коду приглашения (invite_code,
+        // подставляется при переходе по ссылке) или введённому имени группы
+        $code = trim($data['invite_code'] ?? '') ?: trim($data['student_group'] ?? '');
+        if ($user->isStudent() && $code !== '') {
+            $group = Group::where('name', $code)->orWhere('invite_token', $code)->first();
             if ($group) { $group->students()->syncWithoutDetaching([$user->id]); }
         }
 
