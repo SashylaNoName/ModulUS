@@ -15,11 +15,13 @@ class GroupController extends Controller
         if ($request->filled('subject')) $query->where('subject_id', $request->subject);
         if ($request->filled('level'))   $query->where('level', $request->level);
         if ($request->filled('q'))       $query->where('name', 'like', '%'.$request->q.'%');
+        if ($request->filled('year'))     $query->where('year', $request->year);
 
         $groups   = $query->latest()->get();
         $subjects = auth()->user()->subjects;
+        $years = auth()->user()->groups()->pluck('year')->unique()->sortDesc()->values();
 
-        return view('teacher.groups.index', compact('groups','subjects'));
+        return view('teacher.groups.index', compact('groups','subjects','years'));
     }
 
     /** Форма создания */
