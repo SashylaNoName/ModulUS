@@ -17,6 +17,8 @@ use App\Http\Controllers\StudentSubjectController;
 use App\Http\Controllers\TeacherDashboardController;
 use Illuminate\Support\Facades\Route;
 
+
+
 /* ===== Гостевые ===== */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login',    [AuthController::class, 'showLogin'])->middleware('guest')->name('login');
